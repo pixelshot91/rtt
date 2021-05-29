@@ -4,21 +4,21 @@ import 'dart:math';
 
 //import 'models.dart';
 
-class User {
+class Trip {
   int id;
   String name;
+  List<Leg> legs;
 
-  User({this.id, this.name});
+  Trip({this.id, this.name, this.legs});
 }
 
-class Project {
+class Leg {
   int id;
   String name;
   DateTime startTime;
   DateTime endTime;
-  List<int> participants;
 
-  Project({this.id, this.name, this.startTime, this.endTime, this.participants});
+  Leg({this.id, this.name, this.startTime, this.endTime});
 }
 
 class GranttChartScreen extends StatefulWidget {
@@ -34,8 +34,12 @@ class GranttChartScreenState extends State<GranttChartScreen> with TickerProvide
   DateTime fromDate = DateTime(2020, 1, 1, 10);
   DateTime toDate = DateTime(2020, 1, 1, 11);
 
-  List<User> usersInChart;
-  List<Project> projectsInChart;
+  List<Trip> trips = [
+    Trip(name: 'Trip 1', legs: [
+      Leg(id: 1, name: 'Basetax', startTime: DateTime(2020, 1, 1, 10, 0), endTime: DateTime(2020, 1, 1, 10, 25)),
+      Leg(id: 3, name: 'Uber', startTime: DateTime(2020, 1, 1, 10, 30), endTime: DateTime(2020, 1, 1, 10, 40)),
+    ]),
+  ];
 
   @override
   void initState() {
@@ -43,14 +47,11 @@ class GranttChartScreenState extends State<GranttChartScreen> with TickerProvide
     animationController = new AnimationController(
         duration: Duration(microseconds: 2000), vsync: this);
     animationController.forward();
-
-    projectsInChart = projects;
-    usersInChart = users;
   }
 
   Widget buildAppBar() {
     return AppBar(
-      title: Text('GANTT CHART'),
+      title: Text('Suggested Trips'),
     );
   }
 
@@ -70,8 +71,7 @@ class GranttChartScreenState extends State<GranttChartScreen> with TickerProvide
                 animationController: animationController,
                 fromDate: fromDate,
                 toDate: toDate,
-                data: projectsInChart,
-                usersInChart: usersInChart,
+                trips: trips,
               ),
             ),
           ],
@@ -85,8 +85,7 @@ class GanttChart extends StatelessWidget {
   final AnimationController animationController;
   final DateTime fromDate;
   final DateTime toDate;
-  final List<Project> data;
-  final List<User> usersInChart;
+  final List<Trip> trips;
 
   int viewRange;
   int viewRangeToFitScreen = 60;
@@ -96,9 +95,9 @@ class GanttChart extends StatelessWidget {
     this.animationController,
     this.fromDate,
     this.toDate,
-    this.data,
-    this.usersInChart,
+    @required this.trips,
   }) {
+    assert(this.trips != null);
     viewRange = calculateNumberOfMinutesBetween(fromDate, toDate);
   }
 
@@ -158,7 +157,7 @@ class GanttChart extends StatelessWidget {
   }
 
   List<Widget> buildChartBars(
-      List<Project> data, double chartViewWidth, Color color) {
+      List<Leg> data, double chartViewWidth, Color color) {
     List<Widget> chartBars = [];
 
     for(int i = 0; i < data.length; i++) {
@@ -254,10 +253,9 @@ class GanttChart extends StatelessWidget {
     );
   }
 
-  Widget buildChartForEachUser(
-      List<Project> userData, double chartViewWidth, User user) {
+  Widget buildChartForEachTrip(Trip trip, double chartViewWidth) {
     Color color = randomColorGenerator();
-    var chartBars = buildChartBars(userData, chartViewWidth, color);
+    var chartBars = buildChartBars(trip.legs, chartViewWidth, color);
     return Container(
       height: chartBars.length * 29.0 + 25.0 + 4.0,
       child: ListView(
@@ -276,22 +274,22 @@ class GanttChart extends StatelessWidget {
                         child: Row(
                           children: <Widget>[
                             Container(
-                                width: chartViewWidth / viewRangeToFitScreen,
+                                width: 3 * chartViewWidth / viewRangeToFitScreen,
                                 height: chartBars.length * 29.0 + 4.0,
                                 color: color.withAlpha(100),
                                 child: Center(
                                   child: new RotatedBox(
                                     quarterTurns: chartBars.length * 29.0 + 4.0 > 50 ? 0 : 0,
                                     child: new Text(
-                                      user.name,
+                                      trip.name,
                                       textAlign: TextAlign.center,
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                 )),
-                            Stack(
-                              //crossAxisAlignment: CrossAxisAlignment.start,
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: chartBars,
                             ),
                           ],
@@ -309,15 +307,8 @@ class GanttChart extends StatelessWidget {
   List<Widget> buildChartContent(double chartViewWidth) {
     List<Widget> chartContent = [];
 
-    usersInChart.forEach((user) {
-
-      List<Project> projectsOfUser = [];
-
-      projectsOfUser = projects.where((project) => project.participants.indexOf(user.id) != -1).toList();
-
-      if (projectsOfUser.length > 0) {
-        chartContent.add(buildChartForEachUser(projectsOfUser, chartViewWidth, user));
-      }
+    trips.forEach((trip) {
+      chartContent.add(buildChartForEachTrip(trip, chartViewWidth));
     });
 
     return chartContent;
@@ -338,19 +329,14 @@ class GanttChart extends StatelessWidget {
   }
 }
 
-var users = [
-  User(id: 1, name: 'Steve'),
-];
 
-var projects = [
-  Project(id: 1, name: 'Basetax', startTime: DateTime(2020, 1, 1, 10, 0), endTime: DateTime(2020, 1, 1, 10, 25),
-      participants: [1, 2, 3]
+/*var projects = [
+  Leg(id: 1, name: 'Basetax', startTime: DateTime(2020, 1, 1, 10, 0), endTime: DateTime(2020, 1, 1, 10, 25)
   ),
   /*Project(id: 2, name: 'CENTTO', startTime: DateTime(2018, 4, 1), endTime: DateTime(2018, 6, 1),
       participants: [2, 3]
   ),*/
-  Project(id: 3, name: 'Uber', startTime: DateTime(2020, 1, 1, 10, 30), endTime: DateTime(2020, 1, 1, 10, 40),
-      participants: [1, 2, 4]
+  Leg(id: 3, name: 'Uber', startTime: DateTime(2020, 1, 1, 10, 30), endTime: DateTime(2020, 1, 1, 10, 40)
   ),
   /*Project(id: 4, name: 'Grab', startTime: DateTime(2018, 6, 1), endTime: DateTime(2018, 10, 1),
       participants: [1, 4, 3]
@@ -364,4 +350,4 @@ var projects = [
   Project(id: 7, name: 'San Jose', startTime: DateTime(2018, 5, 1), endTime: DateTime(2018, 12, 1),
       participants: [1, 2, 4]
   ),*/
-];
+];*/
