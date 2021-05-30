@@ -5,9 +5,9 @@ import 'package:intl/intl.dart';
 class Trip {
   List<Leg> legs;
 
-  Trip({this.legs});
+  Trip({required this.legs});
 
-  Duration get duration => legs.last.endTime.difference(legs.first.startTime);
+  Duration get duration => legs.last.endTime.difference(legs.first.startTime!);
 
   @override
   String toString() => "Trip :\n" + legs.join("\n");
@@ -18,14 +18,14 @@ class Leg {
   Transport transport;
   String locFrom;
   String locTo;
-  Duration duration;
-  DateTime startTime;
+  Duration? duration;
+  DateTime? startTime;
 
   Leg(this.transport, this.locFrom, this.locTo, {this.duration, this.startTime});
 
-  DateTime get endTime => startTime.add(duration);
+  DateTime get endTime => startTime!.add(duration!);
 
-  Leg copyWith({DateTime startTime, DateTime endTime}) => Leg(
+  Leg copyWith({DateTime? startTime}) => Leg(
     this.transport,
     this.locFrom,
     this.locTo,
@@ -37,7 +37,7 @@ class Leg {
   String toString() {
     String s = "";
     s += transport.name;
-    s += ", " + (startTime == null ? "?" : DateFormat('Hm').format(startTime));
+    s += ", " + (startTime == null ? "?" : DateFormat('Hm').format(startTime!));
     return s;
   }
 }
@@ -74,7 +74,7 @@ class Transport {
   TransportKind kind;
   String line;
   Color get color => colorMap[Tuple2(kind, line)] ?? Colors.grey;
-  String get name => transportKindNames[kind] + ' ' + line;
+  String get name => transportKindNames[kind]! + ' ' + line;
   Transport(this.kind, this.line);
 }
 
@@ -88,7 +88,7 @@ class GanttChartScreen extends StatefulWidget {
 }
 
 class GanttChartScreenState extends State<GanttChartScreen> with TickerProviderStateMixin {
-  AnimationController animationController;
+  AnimationController? animationController;
   final List<Trip> trips;
 
   GanttChartScreenState(this.trips);
@@ -98,7 +98,7 @@ class GanttChartScreenState extends State<GanttChartScreen> with TickerProviderS
     super.initState();
     animationController = new AnimationController(
         duration: Duration(microseconds: 2000), vsync: this);
-    animationController.forward();
+    animationController!.forward();
   }
 
   Widget buildAppBar() {
@@ -110,7 +110,7 @@ class GanttChartScreenState extends State<GanttChartScreen> with TickerProviderS
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: buildAppBar(),
+      appBar: buildAppBar() as PreferredSizeWidget?,
       body: GestureDetector(
         onTap: () {
           FocusScope.of(context).requestFocus(new FocusNode());
@@ -132,66 +132,67 @@ class GanttChartScreenState extends State<GanttChartScreen> with TickerProviderS
 }
 
 class GanttChart extends StatelessWidget {
-  final AnimationController animationController;
-  DateTime fromDate;
-  DateTime toDate;
+  final AnimationController? animationController;
+  DateTime? fromDate;
+  DateTime? toDate;
   final List<Trip> trips;
 
-  int viewRange;
+  late int viewRange;
   double minuteWidth = 15;
-  Animation<double> width;
+  Animation<double>? width;
 
   GanttChart({
     this.animationController,
-    @required this.trips,
+    required this.trips,
   }) {
     assert(this.trips != null);
+    assert(this.trips.isNotEmpty);
 
     trips.forEach((t) {
       final maybeStart = t.legs.first.startTime;
       //print("maybeStart = $maybeStart, fromDate = $fromDate");
-      if (fromDate == null || maybeStart.isBefore(fromDate)) {
+      if (fromDate == null || maybeStart!.isBefore(fromDate!)) {
         fromDate = maybeStart;
       }
 
       final maybeEnd = t.legs.last.endTime;
       //print("maybeEnd = $maybeEnd, toDate = $toDate");
-      if (toDate == null || maybeEnd.isAfter(toDate)) {
+      if (toDate == null || maybeEnd.isAfter(toDate!)) {
         toDate = maybeEnd;
       }
     });
-    viewRange = calculateNumberOfMinutesBetween(fromDate, toDate);
+    viewRange = calculateNumberOfMinutesBetween(fromDate!, toDate!);
   }
 
   int calculateNumberOfMinutesBetween(DateTime from, DateTime to) => to.difference(from).inMinutes;
 
   int calculateDistanceToLeftBorder(DateTime projectStartedAt) {
-    if (projectStartedAt.compareTo(fromDate) <= 0) {
+    if (projectStartedAt.compareTo(fromDate!) <= 0) {
       return 0;
     } else
-      return calculateNumberOfMinutesBetween(fromDate, projectStartedAt) - 1;
+      return calculateNumberOfMinutesBetween(fromDate!, projectStartedAt) - 1;
   }
 
   int calculateRemainingWidth(
       DateTime projectStartedAt, DateTime projectEndedAt) {
     int projectLength =
     calculateNumberOfMinutesBetween(projectStartedAt, projectEndedAt);
-    if (projectStartedAt.compareTo(fromDate) >= 0 &&
-        projectStartedAt.compareTo(toDate) <= 0) {
+    if (projectStartedAt.compareTo(fromDate!) >= 0 &&
+        projectStartedAt.compareTo(toDate!) <= 0) {
       if (projectLength <= viewRange)
         return projectLength;
       else
         return viewRange -
-            calculateNumberOfMinutesBetween(fromDate, projectStartedAt);
-    } else if (projectStartedAt.isBefore(fromDate) &&
-        projectEndedAt.isBefore(fromDate)) {
+            calculateNumberOfMinutesBetween(fromDate!, projectStartedAt);
+    } else if (projectStartedAt.isBefore(fromDate!) &&
+        projectEndedAt.isBefore(fromDate!)) {
       return 0;
-    } else if (projectStartedAt.isBefore(fromDate) &&
-        projectEndedAt.isBefore(toDate)) {
+    } else if (projectStartedAt.isBefore(fromDate!) &&
+        projectEndedAt.isBefore(toDate!)) {
       return projectLength -
-          calculateNumberOfMinutesBetween(projectStartedAt, fromDate);
-    } else if (projectStartedAt.isBefore(fromDate) &&
-        projectEndedAt.isAfter(toDate)) {
+          calculateNumberOfMinutesBetween(projectStartedAt, fromDate!);
+    } else if (projectStartedAt.isBefore(fromDate!) &&
+        projectEndedAt.isAfter(toDate!)) {
       return viewRange;
     }
     return 0;
@@ -203,7 +204,7 @@ class GanttChart extends StatelessWidget {
 
     for(int i = 0; i < legs.length; i++) {
       var remainingWidth =
-      calculateRemainingWidth(legs[i].startTime, legs[i].endTime);
+      calculateRemainingWidth(legs[i].startTime!, legs[i].endTime);
       if (remainingWidth > 0) {
         chartBars.add(Container(
           decoration: BoxDecoration(
@@ -212,7 +213,7 @@ class GanttChart extends StatelessWidget {
           height: 25.0,
           width: remainingWidth * minuteWidth,
           margin: EdgeInsets.only(
-              left: calculateDistanceToLeftBorder(legs[i].startTime) * minuteWidth,
+              left: calculateDistanceToLeftBorder(legs[i].startTime!) * minuteWidth,
               top: i == 0 ? 4.0 : 2.0,
               bottom: i == legs.length - 1 ? 4.0 : 2.0
           ),
@@ -236,7 +237,7 @@ class GanttChart extends StatelessWidget {
   Widget buildHeader(double chartViewWidth, Color color) {
     List<Widget> headerItems = [];
 
-    DateTime tempDate = fromDate;
+    DateTime? tempDate = fromDate;
 
     headerItems.add(Container(
       width: 3*minuteWidth,
@@ -253,7 +254,7 @@ class GanttChart extends StatelessWidget {
       headerItems.add(Container(
         width: 5 * minuteWidth,
         child: new Text(
-          tempDate.hour.toString() + ':' + tempDate.minute.toString(),
+          tempDate!.hour.toString() + ':' + tempDate.minute.toString(),
           textAlign: TextAlign.left,
           style: TextStyle(
             fontSize: 10.0,

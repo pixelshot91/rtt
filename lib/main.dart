@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
@@ -57,10 +57,10 @@ DateTime todayWithTime(int hour, int minute) {
   return DateTime(n.year, n.month, n.day, hour, minute);
 }
 
-class Station {
+/*class Station {
   String name;
   String slug;
-}
+}*/
 
 final SCHEDULES = {
   TransportKind.METRO: Tuple3(todayWithTime(19, 05), Duration(minutes: 10), todayWithTime(23, 30)),
@@ -72,7 +72,7 @@ final margin = Duration(minutes: 31);
 Iterable<Trip> suggestTrip(Trip request, DateTime departure) sync* {
   print("rest = $request");
   List<Leg> rest = request.legs.length > 1 ? request.legs.sublist(1) : [];
-  DateTime best;
+  DateTime? best;
   print("arg = ${request.legs.first}");
   for (Leg first in suggestLegs(request.legs.first, departure)) {
     print("Leg = $first");
@@ -101,7 +101,7 @@ Iterable<Trip> suggestTrip(Trip request, DateTime departure) sync* {
 
 Iterable<Leg> suggestLegs(Leg request, DateTime departure) sync*{
   /*findSchedules(request.transport, request.locFrom, departure).map((t) =>
-    request.copyWith(startTime: departure)
+    request.copyWith(startTime: t)
   );*/
   print("SuggestedLegs start");
   for (DateTime d in findSchedules(request.transport, request.locFrom, departure)) {
@@ -111,7 +111,9 @@ Iterable<Leg> suggestLegs(Leg request, DateTime departure) sync*{
 }
 
 Iterable<DateTime> findSchedules(Transport t, String from, DateTime departure) sync* {
-  final first = SCHEDULES[t.kind].item1, freq = SCHEDULES[t.kind].item2, last = SCHEDULES[t.kind].item3;
+  final first = SCHEDULES[t.kind]!.item1 as DateTime;
+  final freq = SCHEDULES[t.kind]!.item2 as Duration;
+  final last = SCHEDULES[t.kind]!.item3 as DateTime;
   var s = first;
   while (s.isBefore(last)) {
     if (s.isAfter(departure)) {
