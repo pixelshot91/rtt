@@ -242,7 +242,7 @@ class GanttChart extends StatelessWidget {
   Widget buildHeader(double chartViewWidth, Color color) {
     List<Widget> headerItems = [];
 
-    DateTime? tempDate = fromDate;
+    DateTime tempDate = fromDate!;
 
     headerItems.add(Container(
       width: 3*minuteWidth,
@@ -254,19 +254,19 @@ class GanttChart extends StatelessWidget {
         ),
       ),
     ));
-
-    for (int i = 0; i < viewRange; i++) {
+    int intervalMinutes = 5;
+    for (int i = 0; i < viewRange / intervalMinutes; i++) {
       headerItems.add(Container(
-        width: 5 * minuteWidth,
+        width: intervalMinutes * minuteWidth,
         child: new Text(
-          tempDate!.hour.toString() + ':' + tempDate.minute.toString(),
+          DateFormat("Hm").format(tempDate),
           textAlign: TextAlign.left,
           style: TextStyle(
             fontSize: 10.0,
           ),
         ),
       ));
-      tempDate = tempDate.add(Duration(minutes: 5));
+      tempDate = tempDate.add(Duration(minutes: intervalMinutes));
     }
 
     return Container(
@@ -281,7 +281,7 @@ class GanttChart extends StatelessWidget {
   Widget buildGrid(double chartViewWidth) {
     List<Widget> gridColumns = [];
 
-    for (int i = 0; i <= viewRange; i++) {
+    for (int i = 0; i <= viewRange + 1; i++) {
       gridColumns.add(Container(
         decoration: BoxDecoration(
             border: Border(
@@ -301,7 +301,7 @@ class GanttChart extends StatelessWidget {
     final color = ColorRGB(200, 200, 200);
     var tripsBar = trips.map((t) => buildChartForEachTrip(t, chartViewWidth)).toList();
     return Container(
-      height: 100, //chartBars.length * 29.0 + 25.0 + 4.0,
+      //height: trips.length * 29.0 + 25.0 + 4.0,
       child: ListView(
         physics: new ClampingScrollPhysics(),
         scrollDirection: Axis.horizontal,
