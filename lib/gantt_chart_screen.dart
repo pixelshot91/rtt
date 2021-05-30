@@ -9,7 +9,7 @@ class Trip {
 
   Trip({this.legs});
 
-  String get duration => legs.last.endTime.difference(legs.first.startTime).toString();
+  Duration get duration => legs.last.endTime.difference(legs.first.startTime);
 
   @override
   String toString() => "Trip :\n" + legs.join("\n");
@@ -31,7 +31,7 @@ class Leg {
     this.transport,
     this.locFrom,
     this.locTo,
-    duration: duration ?? this.duration,
+    duration: this.duration,
     startTime: startTime ?? this.startTime,
   );
 
@@ -81,7 +81,7 @@ class Transport {
 }
 
 class GanttChartScreen extends StatefulWidget {
-  List<Trip> trips;
+  final List<Trip> trips;
   GanttChartScreen(this.trips);
   @override
   State<StatefulWidget> createState() {
@@ -91,17 +91,7 @@ class GanttChartScreen extends StatefulWidget {
 
 class GanttChartScreenState extends State<GanttChartScreen> with TickerProviderStateMixin {
   AnimationController animationController;
-
-  List<Trip> trips; /* = [
-    Trip(legs: [
-      Leg(Transport(TransportKind.RER, "A"), "Reuil", "Denfert", startTime: DateTime(2020, 1, 1, 10, 0), duration: Duration(minutes: 25)),
-      Leg(Transport(TransportKind.RER, "B"), "Denfert", "Bourg-la-Reine", startTime: DateTime(2020, 1, 1, 10, 30), duration: Duration(minutes: 10)),
-    ]),
-    /*Trip(name: 'Trip 2', legs: [
-      Leg(Transport(TransportKind.BUS, "172"), startTime: DateTime(2020, 1, 1, 10, 11), endTime: DateTime(2020, 1, 1, 10, 32)),
-      Leg(Transport(TransportKind.RER, "B"), startTime: DateTime(2020, 1, 1, 10, 40), endTime: DateTime(2020, 1, 1, 10, 50)),
-    ]),*/
-  ];*/
+  final List<Trip> trips;
 
   GanttChartScreenState(this.trips);
 
@@ -150,7 +140,7 @@ class GanttChart extends StatelessWidget {
   final List<Trip> trips;
 
   int viewRange;
-  int viewRangeToFitScreen = 60;
+  double minuteWidth = 15;
   Animation<double> width;
 
   GanttChart({
@@ -222,11 +212,9 @@ class GanttChart extends StatelessWidget {
               color: legs[i].transport.color,
               borderRadius: BorderRadius.circular(10.0)),
           height: 25.0,
-          width: remainingWidth * chartViewWidth / viewRangeToFitScreen,
+          width: remainingWidth * minuteWidth,
           margin: EdgeInsets.only(
-              left: calculateDistanceToLeftBorder(legs[i].startTime) *
-                  chartViewWidth /
-                  viewRangeToFitScreen,
+              left: calculateDistanceToLeftBorder(legs[i].startTime) * minuteWidth,
               top: i == 0 ? 4.0 : 2.0,
               bottom: i == legs.length - 1 ? 4.0 : 2.0
           ),
@@ -253,7 +241,7 @@ class GanttChart extends StatelessWidget {
     DateTime tempDate = fromDate;
 
     headerItems.add(Container(
-      width: 3*chartViewWidth / viewRangeToFitScreen,
+      width: 3*minuteWidth,
       child: new Text(
         ' ',
         textAlign: TextAlign.center,
@@ -265,7 +253,7 @@ class GanttChart extends StatelessWidget {
 
     for (int i = 0; i < viewRange; i++) {
       headerItems.add(Container(
-        width: 5 * chartViewWidth / viewRangeToFitScreen,
+        width: 5 * minuteWidth,
         child: new Text(
           tempDate.hour.toString() + ':' + tempDate.minute.toString(),
           textAlign: TextAlign.left,
@@ -295,7 +283,7 @@ class GanttChart extends StatelessWidget {
             border: Border(
                 right:
                 BorderSide(color: Colors.grey.withAlpha(100), width: 1.0))),
-        width: chartViewWidth / viewRangeToFitScreen,
+        width: minuteWidth,
         //height: 300.0,
       ));
     }
@@ -336,12 +324,12 @@ class GanttChart extends StatelessWidget {
     return Row(
       children: <Widget>[
         Container(
-            width: 3 * chartViewWidth / viewRangeToFitScreen,
+            width: 3 * minuteWidth,
             height: chartBars.length * 29.0 + 4.0,
             color: color.withAlpha(100),
             child: Center(
               child: Text(
-                trip.duration,
+                trip.duration.inMinutes.toString() + " min",
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
