@@ -32,21 +32,21 @@ class MyHomePage extends StatefulWidget {
 }
 
 final tripRequest = Trip(legs: [
-  Leg(Transport(TransportKind.RER, "A"), "Reuil", "Denfert", startTime: DateTime(2020, 1, 1, 10, 0), duration: Duration(minutes: 25)),
-  Leg(Transport(TransportKind.RER, "B"), "Denfert", "Bourg-la-Reine", startTime: DateTime(2020, 1, 1, 10, 30), duration: Duration(minutes: 10)),
+  Leg(Transport(TransportKind.METRO, "7"), "VJ", "Auber", duration: Duration(minutes: 25)),
+  Leg(Transport(TransportKind.RER, "A"), "Auber", "Rueil", duration: Duration(minutes: 20)),
 ]);
 
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    final trips = suggestTrip(tripRequest, todayWithTime(19, 30));
-    print(trips);
+    final List<Trip> suggestedTrips = suggestTrip(tripRequest, todayWithTime(19, 30)).toList();
+    print("suggestedTrips = $suggestedTrips");
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
       ),
       body: Center(
-        child: Text(""), //GranttChartScreen()
+        child: GanttChartScreen(suggestedTrips),
       ),
     );
   }
@@ -71,38 +71,53 @@ final margin = Duration(minutes: 10);
 
 Iterable<Trip> suggestTrip(Trip request, DateTime departure) sync* {
   print("rest = ${request}");
-  var rest = request.legs.length > 1 ? request.legs.sublist(1) : null;
-  DateTime best = null;
+  List<Leg> rest = request.legs.length > 1 ? request.legs.sublist(1) : [];
+  DateTime best;
+  print("arg = ${request.legs.first}");
   for (Leg first in suggestLegs(request.legs.first, departure)) {
+    print("Leg = $first");
     if (best != null && first.endTime.isAfter(best.add(margin))) {
       break;
     }
-    if (rest != null) {
+    if (rest.isEmpty) {
       yield Trip(legs: [first]);
+      continue;
     }
-    var suggestRests = suggestTrip(Trip(legs: rest), departure);
+    var suggestRests = suggestTrip(Trip(legs: rest), first.endTime);
+    print("For suggestRest");
     for (Trip suggestRest in suggestRests) {
+      print("For iter suggestRest");
       final endTime = suggestRest.legs.last.endTime;
       if (best == null || best.isAfter(endTime)) {
         best = endTime;
       } else if (endTime.isAfter(best.add(margin))) {
         break;
       }
+      print("Yield Trip with first and tail");
       yield Trip(legs: [first, ...suggestRest.legs]);
     }
   }
 }
 
-Iterable<Leg> suggestLegs(Leg request, DateTime departure) =>
-  findSchedules(request.transport, request.locFrom, departure).map((t) =>
+Iterable<Leg> suggestLegs(Leg request, DateTime departure) sync*{
+  /*findSchedules(request.transport, request.locFrom, departure).map((t) =>
     request.copyWith(startTime: departure)
-  );
+  );*/
+  print("SuggestedLegs start");
+  for (DateTime d in findSchedules(request.transport, request.locFrom, departure)) {
+    print("Yield SuggestedLeg");
+    yield request.copyWith(startTime: departure);
+  }
+}
 
 Iterable<DateTime> findSchedules(Transport t, String from, DateTime departure) sync* {
   final first = SCHEDULES[t.kind].item1, freq = SCHEDULES[t.kind].item2, last = SCHEDULES[t.kind].item3;
   var s = first;
   while (s.isBefore(last)) {
-    yield s;
+    if (s.isAfter(departure)) {
+      print("Yield schedule at time = $s");
+      yield s;
+    }
     s = s.add(freq);
   }
 }

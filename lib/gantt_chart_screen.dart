@@ -62,25 +62,24 @@ var transportKindNames = {
 class Transport {
   TransportKind kind;
   String line;
-  Color get color => colorMap[Tuple2(kind, line)];
+  Color get color => colorMap[Tuple2(kind, line)] ?? Colors.grey;
   String get name => transportKindNames[kind] + ' ' + line;
   Transport(this.kind, this.line);
 }
 
-class GranttChartScreen extends StatefulWidget {
+class GanttChartScreen extends StatefulWidget {
+  List<Trip> trips;
+  GanttChartScreen(this.trips);
   @override
   State<StatefulWidget> createState() {
-    return new GranttChartScreenState();
+    return new GanttChartScreenState(trips);
   }
 }
 
-class GranttChartScreenState extends State<GranttChartScreen> with TickerProviderStateMixin {
+class GanttChartScreenState extends State<GanttChartScreen> with TickerProviderStateMixin {
   AnimationController animationController;
 
-  DateTime fromDate = DateTime(2020, 1, 1, 10);
-  DateTime toDate = DateTime(2020, 1, 1, 11);
-
-  List<Trip> trips = [
+  List<Trip> trips; /* = [
     Trip(legs: [
       Leg(Transport(TransportKind.RER, "A"), "Reuil", "Denfert", startTime: DateTime(2020, 1, 1, 10, 0), duration: Duration(minutes: 25)),
       Leg(Transport(TransportKind.RER, "B"), "Denfert", "Bourg-la-Reine", startTime: DateTime(2020, 1, 1, 10, 30), duration: Duration(minutes: 10)),
@@ -89,7 +88,9 @@ class GranttChartScreenState extends State<GranttChartScreen> with TickerProvide
       Leg(Transport(TransportKind.BUS, "172"), startTime: DateTime(2020, 1, 1, 10, 11), endTime: DateTime(2020, 1, 1, 10, 32)),
       Leg(Transport(TransportKind.RER, "B"), startTime: DateTime(2020, 1, 1, 10, 40), endTime: DateTime(2020, 1, 1, 10, 50)),
     ]),*/
-  ];
+  ];*/
+
+  GanttChartScreenState(this.trips);
 
   @override
   void initState() {
@@ -119,8 +120,6 @@ class GranttChartScreenState extends State<GranttChartScreen> with TickerProvide
             Expanded(
               child: GanttChart(
                 animationController: animationController,
-                fromDate: fromDate,
-                toDate: toDate,
                 trips: trips,
               ),
             ),
@@ -133,8 +132,8 @@ class GranttChartScreenState extends State<GranttChartScreen> with TickerProvide
 
 class GanttChart extends StatelessWidget {
   final AnimationController animationController;
-  final DateTime fromDate;
-  final DateTime toDate;
+  DateTime fromDate;
+  DateTime toDate;
   final List<Trip> trips;
 
   int viewRange;
@@ -143,31 +142,27 @@ class GanttChart extends StatelessWidget {
 
   GanttChart({
     this.animationController,
-    this.fromDate,
-    this.toDate,
     @required this.trips,
   }) {
     assert(this.trips != null);
+
+    trips.forEach((t) {
+      final maybeStart = t.legs.first.startTime;
+      //print("maybeStart = $maybeStart, fromDate = $fromDate");
+      if (fromDate == null || maybeStart.isBefore(fromDate)) {
+        fromDate = maybeStart;
+      }
+
+      final maybeEnd = t.legs.last.endTime;
+      //print("maybeEnd = $maybeEnd, toDate = $toDate");
+      if (toDate == null || maybeEnd.isAfter(toDate)) {
+        toDate = maybeEnd;
+      }
+    });
     viewRange = calculateNumberOfMinutesBetween(fromDate, toDate);
   }
 
-  DateTime nextMonth(DateTime dt) {
-    var year = dt.year;
-    var month = dt.month;
-
-    if (month == 12) {
-      year++;
-      month = 1;
-    } else {
-      month++;
-    }
-    return DateTime(year, month);
-  }
-
-  int calculateNumberOfMinutesBetween(DateTime from, DateTime to) {
-    //return to.month - from.month + 12 * (to.year - from.year) + 1;
-    return to.difference(from).inMinutes;
-  }
+  int calculateNumberOfMinutesBetween(DateTime from, DateTime to) => to.difference(from).inMinutes;
 
   int calculateDistanceToLeftBorder(DateTime projectStartedAt) {
     if (projectStartedAt.compareTo(fromDate) <= 0) {
