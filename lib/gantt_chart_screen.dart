@@ -109,6 +109,9 @@ class GanttChartScreenState extends State<GanttChartScreen> with TickerProviderS
 
   @override
   Widget build(BuildContext context) {
+    if (trips.isEmpty) {
+      return Text("No trip found");
+    }
     return Scaffold(
       appBar: buildAppBar() as PreferredSizeWidget?,
       body: GestureDetector(
