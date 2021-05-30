@@ -6,20 +6,33 @@ import 'package:tuple/tuple.dart';
 //import 'models.dart';
 
 class Trip {
-  int id;
-  String name;
   List<Leg> legs;
 
-  Trip({this.id, this.name, this.legs});
+  Trip({this.legs});
+
+  @override
+  String toString() => "Trip : " + legs.toString();
 }
 
+// TODO: create LegRequirements and SuggestedLeg
 class Leg {
-  int id;
   Transport transport;
+  String locFrom;
+  String locTo;
+  Duration duration;
   DateTime startTime;
-  DateTime endTime;
 
-  Leg({this.id, this.transport, this.startTime, this.endTime});
+  Leg(this.transport, this.locFrom, this.locTo, {this.duration, this.startTime});
+
+  DateTime get endTime => startTime.add(duration);
+
+  Leg copyWith({DateTime startTime, DateTime endTime}) => Leg(
+    this.transport,
+    this.locFrom,
+    this.locTo,
+    duration: duration ?? this.duration,
+    startTime: startTime ?? this.startTime,
+  );
 }
 
 enum TransportKind {
@@ -68,14 +81,14 @@ class GranttChartScreenState extends State<GranttChartScreen> with TickerProvide
   DateTime toDate = DateTime(2020, 1, 1, 11);
 
   List<Trip> trips = [
-    Trip(name: 'Trip 1', legs: [
-      Leg(id: 1, transport: Transport(TransportKind.RER, "A"), startTime: DateTime(2020, 1, 1, 10, 0), endTime: DateTime(2020, 1, 1, 10, 25)),
-      Leg(id: 3, transport: Transport(TransportKind.RER, "B"), startTime: DateTime(2020, 1, 1, 10, 30), endTime: DateTime(2020, 1, 1, 10, 40)),
+    Trip(legs: [
+      Leg(Transport(TransportKind.RER, "A"), "Reuil", "Denfert", startTime: DateTime(2020, 1, 1, 10, 0), duration: Duration(minutes: 25)),
+      Leg(Transport(TransportKind.RER, "B"), "Denfert", "Bourg-la-Reine", startTime: DateTime(2020, 1, 1, 10, 30), duration: Duration(minutes: 10)),
     ]),
-    Trip(name: 'Trip 2', legs: [
-      Leg(id: 1, transport: Transport(TransportKind.BUS, "172"), startTime: DateTime(2020, 1, 1, 10, 11), endTime: DateTime(2020, 1, 1, 10, 32)),
-      Leg(id: 3, transport: Transport(TransportKind.RER, "B"), startTime: DateTime(2020, 1, 1, 10, 40), endTime: DateTime(2020, 1, 1, 10, 50)),
-    ]),
+    /*Trip(name: 'Trip 2', legs: [
+      Leg(Transport(TransportKind.BUS, "172"), startTime: DateTime(2020, 1, 1, 10, 11), endTime: DateTime(2020, 1, 1, 10, 32)),
+      Leg(Transport(TransportKind.RER, "B"), startTime: DateTime(2020, 1, 1, 10, 40), endTime: DateTime(2020, 1, 1, 10, 50)),
+    ]),*/
   ];
 
   @override
@@ -195,7 +208,6 @@ class GanttChart extends StatelessWidget {
     for(int i = 0; i < legs.length; i++) {
       var remainingWidth =
       calculateRemainingWidth(legs[i].startTime, legs[i].endTime);
-      print(remainingWidth);
       if (remainingWidth > 0) {
         chartBars.add(Container(
           decoration: BoxDecoration(
@@ -313,7 +325,7 @@ class GanttChart extends StatelessWidget {
                                   child: new RotatedBox(
                                     quarterTurns: chartBars.length * 29.0 + 4.0 > 50 ? 0 : 0,
                                     child: new Text(
-                                      trip.name,
+                                      "trip.name",
                                       textAlign: TextAlign.center,
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
