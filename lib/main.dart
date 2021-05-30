@@ -67,7 +67,7 @@ final SCHEDULES = {
   TransportKind.RER  : Tuple3(todayWithTime(19, 10), Duration(minutes: 30), todayWithTime(23, 50)),
   //TransportKind.WALK  : Tuple3(todayWithTime(19, 00), Duration(minutes: 01), todayWithTime(23, 50)), // not meaningful
 };
-final margin = Duration(minutes: 10);
+final margin = Duration(minutes: 31);
 
 Iterable<Trip> suggestTrip(Trip request, DateTime departure) sync* {
   print("rest = ${request}");
@@ -106,7 +106,7 @@ Iterable<Leg> suggestLegs(Leg request, DateTime departure) sync*{
   print("SuggestedLegs start");
   for (DateTime d in findSchedules(request.transport, request.locFrom, departure)) {
     print("Yield SuggestedLeg");
-    yield request.copyWith(startTime: departure);
+    yield request.copyWith(startTime: d);
   }
 }
 
@@ -115,7 +115,7 @@ Iterable<DateTime> findSchedules(Transport t, String from, DateTime departure) s
   var s = first;
   while (s.isBefore(last)) {
     if (s.isAfter(departure)) {
-      print("Yield schedule at time = $s");
+      print("t.kind = ${t.kind} Yield schedule at time = $s");
       yield s;
     }
     s = s.add(freq);

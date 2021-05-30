@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:date_utils/date_utils.dart';
 import 'dart:math';
 import 'package:tuple/tuple.dart';
-
-//import 'models.dart';
+import 'package:intl/intl.dart';
 
 class Trip {
   List<Leg> legs;
@@ -11,7 +10,7 @@ class Trip {
   Trip({this.legs});
 
   @override
-  String toString() => "Trip : " + legs.toString();
+  String toString() => "Trip :\n" + legs.join("\n");
 }
 
 // TODO: create LegRequirements and SuggestedLeg
@@ -33,6 +32,14 @@ class Leg {
     duration: duration ?? this.duration,
     startTime: startTime ?? this.startTime,
   );
+
+  @override
+  String toString() {
+    String s = "";
+    s += transport.name;
+    s += ", " + (startTime == null ? "?" : DateFormat('Hm').format(startTime));
+    return s;
+  }
 }
 
 enum TransportKind {
@@ -48,10 +55,14 @@ class RATPColors {
   static final Coquelicot = ColorRGB(255, 20, 0);
   static final Bleu_outremer = ColorRGB(60, 145, 220);
   static final Vert_fonce = ColorRGB(0, 100, 60);
+  static final Rose = ColorRGB(255, 130, 180);
 }
 var colorMap = {
   Tuple2(TransportKind.RER, "A"): RATPColors.Coquelicot,
   Tuple2(TransportKind.RER, "B"): RATPColors.Bleu_outremer,
+
+  Tuple2(TransportKind.METRO, "7"): RATPColors.Rose,
+
   Tuple2(TransportKind.BUS, "172"): RATPColors.Vert_fonce,
 };
 var transportKindNames = {
