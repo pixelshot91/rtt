@@ -9,6 +9,8 @@ class Trip {
 
   Trip({this.legs});
 
+  String get duration => legs.last.endTime.difference(legs.first.startTime).toString();
+
   @override
   String toString() => "Trip :\n" + legs.join("\n");
 }
@@ -303,11 +305,11 @@ class GanttChart extends StatelessWidget {
     );
   }
 
-  Widget buildChartForEachTrip(Trip trip, double chartViewWidth) {
+  Widget buildChartForAllTrips(List<Trip> trips, double chartViewWidth) {
     final color = ColorRGB(200, 200, 200);
-    var chartBars = buildChartBars(trip.legs, chartViewWidth);
+    var tripsBar = trips.map((t) => buildChartForEachTrip(t, chartViewWidth)).toList();
     return Container(
-      height: chartBars.length * 29.0 + 25.0 + 4.0,
+      height: 100, //chartBars.length * 29.0 + 25.0 + 4.0,
       child: ListView(
         physics: new ClampingScrollPhysics(),
         scrollDirection: Axis.horizontal,
@@ -317,51 +319,41 @@ class GanttChart extends StatelessWidget {
             buildHeader(chartViewWidth, color),
             Container(
                 margin: EdgeInsets.only(top: 25.0),
-                child: Container(
-                  child: Column(
-                    children: <Widget>[
-                      Container(
-                        child: Row(
-                          children: <Widget>[
-                            Container(
-                                width: 3 * chartViewWidth / viewRangeToFitScreen,
-                                height: chartBars.length * 29.0 + 4.0,
-                                color: color.withAlpha(100),
-                                child: Center(
-                                  child: new RotatedBox(
-                                    quarterTurns: chartBars.length * 29.0 + 4.0 > 50 ? 0 : 0,
-                                    child: new Text(
-                                      "trip.name",
-                                      textAlign: TextAlign.center,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                )),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: chartBars,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                )),
+                child: Column(
+                  children: tripsBar,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                ),
+            ),
           ]),
         ],
       ),
     );
   }
 
-  List<Widget> buildChartContent(double chartViewWidth) {
-    List<Widget> chartContent = [];
-
-    trips.forEach((trip) {
-      chartContent.add(buildChartForEachTrip(trip, chartViewWidth));
-    });
-
-    return chartContent;
+  Widget buildChartForEachTrip(Trip trip, double chartViewWidth) {
+    final color = ColorRGB(200, 200, 200);
+    var chartBars = buildChartBars(trip.legs, chartViewWidth);
+    return Row(
+      children: <Widget>[
+        Container(
+            width: 3 * chartViewWidth / viewRangeToFitScreen,
+            height: chartBars.length * 29.0 + 4.0,
+            color: color.withAlpha(100),
+            child: Center(
+              child: Text(
+                trip.duration,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+        ),
+        Stack(
+          //crossAxisAlignment: CrossAxisAlignment.start,
+          children: chartBars,
+        ),
+      ],
+    );
   }
 
   @override
@@ -374,7 +366,16 @@ class GanttChart extends StatelessWidget {
         : viewRangeToFitScreen = 6;*/
 
     return Container(
-      child: MediaQuery.removePadding(child: ListView(children: buildChartContent(chartViewWidth)), removeTop: true, context: context,),
+      child: MediaQuery.removePadding(
+        child: buildChartForAllTrips(trips, chartViewWidth),
+        removeTop: true,
+        context: context,
+      ),
     );
+    /*return Container(
+      child: MediaQuery.removePadding(child: ListView(
+          children: buildChartContent(chartViewWidth)
+      ), removeTop: true, context: context,),
+    );*/
   }
 }
