@@ -70,7 +70,7 @@ final SCHEDULES = {
 final margin = Duration(minutes: 31);
 
 Iterable<Trip> suggestTrip(Trip request, DateTime departure) sync* {
-  print("rest = ${request}");
+  print("rest = $request");
   List<Leg> rest = request.legs.length > 1 ? request.legs.sublist(1) : [];
   DateTime best;
   print("arg = ${request.legs.first}");
