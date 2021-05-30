@@ -32,7 +32,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 final tripRequest = Trip(legs: [
-  Leg(Transport(TransportKind.METRO, "7"), "VJ", "Auber", duration: Duration(minutes: 25)),
+  Leg(Transport(TransportKind.METRO, "7"), "VJ", "Opera", duration: Duration(minutes: 25)),
+  Leg(Transport(TransportKind.WALK, ""), "Opera", "Auber", duration: Duration(minutes: 5)),
   Leg(Transport(TransportKind.RER, "A"), "Auber", "Rueil", duration: Duration(minutes: 20)),
 ]);
 
@@ -65,7 +66,6 @@ DateTime todayWithTime(int hour, int minute) {
 final SCHEDULES = {
   TransportKind.METRO: Tuple3(todayWithTime(19, 05), Duration(minutes: 10), todayWithTime(23, 30)),
   TransportKind.RER  : Tuple3(todayWithTime(19, 10), Duration(minutes: 30), todayWithTime(23, 50)),
-  //TransportKind.WALK  : Tuple3(todayWithTime(19, 00), Duration(minutes: 01), todayWithTime(23, 50)), // not meaningful
 };
 final margin = Duration(minutes: 31);
 
@@ -76,18 +76,18 @@ Iterable<Trip> suggestTrip(Trip request, DateTime departure) sync* {
   print("arg = ${request.legs.first}");
   for (Leg first in suggestLegs(request.legs.first, departure)) {
     print("Leg = $first");
-    if (best != null && first.endTime.isAfter(best.add(margin))) {
+    if (best != null && first.endTime!.isAfter(best.add(margin))) {
       break;
     }
     if (rest.isEmpty) {
       yield Trip(legs: [first]);
       continue;
     }
-    var suggestRests = suggestTrip(Trip(legs: rest), first.endTime);
+    var suggestRests = suggestTrip(Trip(legs: rest), first.endTime!);
     print("For suggestRest");
     for (Trip suggestRest in suggestRests) {
       print("For iter suggestRest");
-      final endTime = suggestRest.legs.last.endTime;
+      final endTime = suggestRest.legs.last.endTime!;
       if (best == null || best.isAfter(endTime)) {
         best = endTime;
       } else if (endTime.isAfter(best.add(margin))) {
@@ -111,9 +111,13 @@ Iterable<Leg> suggestLegs(Leg request, DateTime departure) sync*{
 }
 
 Iterable<DateTime> findSchedules(Transport t, String from, DateTime departure) sync* {
-  final first = SCHEDULES[t.kind]!.item1 as DateTime;
-  final freq = SCHEDULES[t.kind]!.item2 as Duration;
-  final last = SCHEDULES[t.kind]!.item3 as DateTime;
+  if (t.kind == TransportKind.WALK) {
+    yield departure;
+    return;
+  }
+  final first = SCHEDULES[t.kind]!.item1;
+  final freq = SCHEDULES[t.kind]!.item2;
+  final last = SCHEDULES[t.kind]!.item3;
   var s = first;
   while (s.isBefore(last)) {
     if (s.isAfter(departure)) {

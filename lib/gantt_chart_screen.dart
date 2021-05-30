@@ -7,7 +7,7 @@ class Trip {
 
   Trip({required this.legs});
 
-  Duration get duration => legs.last.endTime.difference(legs.first.startTime!);
+  Duration? get duration => legs.last.endTime?.difference(legs.first.startTime!);
 
   @override
   String toString() => "Trip :\n" + legs.join("\n");
@@ -23,7 +23,7 @@ class Leg {
 
   Leg(this.transport, this.locFrom, this.locTo, {this.duration, this.startTime});
 
-  DateTime get endTime => startTime!.add(duration!);
+  DateTime? get endTime => startTime?.add(duration!);
 
   Leg copyWith({DateTime? startTime}) => Leg(
     this.transport,
@@ -38,6 +38,7 @@ class Leg {
     String s = "";
     s += transport.name;
     s += ", " + (startTime == null ? "?" : DateFormat('Hm').format(startTime!));
+    s += " -> " + (endTime == null ? "?" : DateFormat('Hm').format(endTime!));
     return s;
   }
 }
@@ -46,6 +47,7 @@ enum TransportKind {
   RER,
   METRO,
   BUS,
+  WALK,
 }
 //Map colorMap = <Pair<TransportKind, line>, Color>();
 
@@ -69,6 +71,7 @@ var transportKindNames = {
   TransportKind.RER: "RER",
   TransportKind.METRO: "Metro",
   TransportKind.BUS: "Bus",
+  TransportKind.WALK: "Walk",
 };
 class Transport {
   TransportKind kind;
@@ -155,12 +158,11 @@ class GanttChart extends StatelessWidget {
       final maybeStart = t.legs.first.startTime;
       //print("maybeStart = $maybeStart, fromDate = $fromDate");
       if (fromDate == null || maybeStart!.isBefore(fromDate!)) {
-        fromDate = maybeStart;
+        fromDate = maybeStart; //!.subtract(Duration(minutes: 10));
       }
 
       final maybeEnd = t.legs.last.endTime;
-      //print("maybeEnd = $maybeEnd, toDate = $toDate");
-      if (toDate == null || maybeEnd.isAfter(toDate!)) {
+      if (maybeEnd != null && (toDate == null || maybeEnd.isAfter(toDate!))) {
         toDate = maybeEnd;
       }
     });
@@ -173,7 +175,7 @@ class GanttChart extends StatelessWidget {
     if (projectStartedAt.compareTo(fromDate!) <= 0) {
       return 0;
     } else
-      return calculateNumberOfMinutesBetween(fromDate!, projectStartedAt) - 1;
+      return calculateNumberOfMinutesBetween(fromDate!, projectStartedAt);
   }
 
   int calculateRemainingWidth(
@@ -207,7 +209,7 @@ class GanttChart extends StatelessWidget {
 
     for(int i = 0; i < legs.length; i++) {
       var remainingWidth =
-      calculateRemainingWidth(legs[i].startTime!, legs[i].endTime);
+      calculateRemainingWidth(legs[i].startTime!, legs[i].endTime!);
       if (remainingWidth > 0) {
         chartBars.add(Container(
           decoration: BoxDecoration(
@@ -331,7 +333,7 @@ class GanttChart extends StatelessWidget {
             color: color.withAlpha(100),
             child: Center(
               child: Text(
-                trip.duration.inMinutes.toString() + " min",
+                trip.duration!.inMinutes.toString() + " min",
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
