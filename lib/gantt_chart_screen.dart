@@ -1,4 +1,7 @@
+import 'dart:html';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:tuple/tuple.dart';
 import 'package:intl/intl.dart';
 
@@ -52,6 +55,15 @@ enum TransportKind {
 //Map colorMap = <Pair<TransportKind, line>, Color>();
 
 Color ColorRGB(int r, int g, int b) => Color.fromARGB(255, r, g, b);
+int helperFade(int c, double f) => 255 - ((255 - c) * f).toInt();
+Color fade(Color c) {
+  double f = 0.4;
+  return ColorRGB(
+    helperFade(c.red, f),
+    helperFade(c.green, f),
+    helperFade(c.blue, f),
+  );
+}
 
 class RATPColors {
   static final Coquelicot = ColorRGB(255, 20, 0);
@@ -59,13 +71,22 @@ class RATPColors {
   static final Vert_fonce = ColorRGB(0, 100, 60);
   static final Rose = ColorRGB(255, 130, 180);
 }
-var colorMap = {
-  Tuple2(TransportKind.RER, "A"): RATPColors.Coquelicot,
-  Tuple2(TransportKind.RER, "B"): RATPColors.Bleu_outremer,
 
-  Tuple2(TransportKind.METRO, "7"): RATPColors.Rose,
+class LineInfo {
+  Color color;
+  SvgPicture picto;
+  
+  LineInfo(this.color, String pictoName)
+      : picto = SvgPicture.asset(pictoName, height: 25);
+}
 
-  Tuple2(TransportKind.BUS, "172"): RATPColors.Vert_fonce,
+final LineInfos = {
+  Tuple2(TransportKind.RER, "A"): LineInfo(RATPColors.Coquelicot, "RER A"),
+  Tuple2(TransportKind.RER, "B"): LineInfo(RATPColors.Bleu_outremer, "RER B"),
+
+  Tuple2(TransportKind.METRO, "7"): LineInfo(RATPColors.Rose, "M7"),
+
+  Tuple2(TransportKind.BUS, "172"): LineInfo(RATPColors.Vert_fonce, "172"),
 };
 var transportKindNames = {
   TransportKind.RER: "RER",
@@ -73,10 +94,30 @@ var transportKindNames = {
   TransportKind.BUS: "Bus",
   TransportKind.WALK: "Walk",
 };
+
 class Transport {
   TransportKind kind;
   String line;
-  Color get color => colorMap[Tuple2(kind, line)] ?? Colors.grey;
+  LineInfo? get lineInfo => LineInfos[Tuple2(kind, line)];
+  Color get color => lineInfo?.color ?? Colors.grey;
+  SvgPicture get picto => lineInfo?.picto ??
+      SvgPicture.asset(
+    'picto/RERAgenRVB.svg',
+    //width:  20,
+    height: 25,
+    //fit: BoxFit.fill,
+  );
+  /*String get pictoPath => pictoIdToPath[id];
+  String get id {
+    switch (kind) {
+      case TransportKind.RER:
+        return "RER " + name;
+      case TransportKind.METRO:
+        return "M" + name;
+      case TransportKind.BUS:
+        return name;
+    }
+  }*/
   String get name => transportKindNames[kind]! + ' ' + line;
   Transport(this.kind, this.line);
 }
@@ -213,8 +254,9 @@ class GanttChart extends StatelessWidget {
       if (remainingWidth > 0) {
         chartBars.add(Container(
           decoration: BoxDecoration(
-              color: legs[i].transport.color,
-              borderRadius: BorderRadius.circular(10.0)),
+              color: fade(legs[i].transport.color),
+              borderRadius: BorderRadius.circular(10.0),
+          ),
           height: 25.0,
           width: remainingWidth * minuteWidth,
           margin: EdgeInsets.only(
@@ -223,14 +265,16 @@ class GanttChart extends StatelessWidget {
               bottom: i == legs.length - 1 ? 4.0 : 2.0
           ),
           alignment: Alignment.centerLeft,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: Text(
-              legs[i].transport.name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 10.0),
-            ),
+          child: Row(
+              children: [
+                legs[i].transport.picto,
+                Text(
+                  ' ' + legs[i].transport.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 10.0),
+                ),
+              ],
           ),
         ));
       }
@@ -371,3 +415,4 @@ class GanttChart extends StatelessWidget {
     );*/
   }
 }
+
