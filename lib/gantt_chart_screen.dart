@@ -1,57 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:rtt/rtt.dart';
 import 'package:rtt/ui.dart';
 import 'package:tuple/tuple.dart';
 import 'package:intl/intl.dart';
-
-class Trip {
-  List<Leg> legs;
-
-  Trip({required this.legs});
-
-  Duration? get duration => legs.last.endTime?.difference(legs.first.startTime!);
-
-  @override
-  String toString() => "Trip :\n" + legs.join("\n");
-}
-
-// TODO: create LegRequirements and SuggestedLeg
-class Leg {
-  Transport transport;
-  String locFrom;
-  String locTo;
-  Duration? duration;
-  DateTime? startTime;
-
-  Leg(this.transport, this.locFrom, this.locTo, {this.duration, this.startTime});
-
-  DateTime? get endTime => startTime?.add(duration!);
-
-  Leg copyWith({DateTime? startTime}) => Leg(
-    this.transport,
-    this.locFrom,
-    this.locTo,
-    duration: this.duration,
-    startTime: startTime ?? this.startTime,
-  );
-
-  @override
-  String toString() {
-    String s = "";
-    s += transport.name;
-    s += ", " + (startTime == null ? "?" : DateFormat('Hm').format(startTime!));
-    s += " -> " + (endTime == null ? "?" : DateFormat('Hm').format(endTime!));
-    return s;
-  }
-}
-
-enum TransportKind {
-  RER,
-  METRO,
-  BUS,
-  WALK,
-}
-//Map colorMap = <Pair<TransportKind, line>, Color>();
 
 Color ColorRGB(int r, int g, int b) => Color.fromARGB(255, r, g, b);
 int helperFade(int c, double f) => 255 - ((255 - c) * f).toInt();
@@ -79,7 +31,6 @@ class LineInfo {
     picto = SvgPicture.asset("picto/" + pictoIdToName[pictoId]!, height: 25);
 }
 
-
 final LineInfos = {
   Tuple2(TransportKind.RER, "A"): LineInfo(RATPColors.Coquelicot, "RER A"),
   Tuple2(TransportKind.RER, "B"): LineInfo(RATPColors.Bleu_outremer, "RER B"),
@@ -88,16 +39,8 @@ final LineInfos = {
 
   Tuple2(TransportKind.BUS, "172"): LineInfo(RATPColors.Vert_fonce, "172"),
 };
-var transportKindNames = {
-  TransportKind.RER: "RER",
-  TransportKind.METRO: "Metro",
-  TransportKind.BUS: "Bus",
-  TransportKind.WALK: "Walk",
-};
 
-class Transport {
-  TransportKind kind;
-  String line;
+extension UI on Transport {
   LineInfo? get lineInfo => LineInfos[Tuple2(kind, line)];
   Color get color => lineInfo?.color ?? Colors.grey;
   SvgPicture get picto => lineInfo?.picto ?? SvgPicture.asset("");
@@ -112,8 +55,6 @@ class Transport {
         return name;
     }
   }*/
-  String get name => transportKindNames[kind]! + ' ' + line;
-  Transport(this.kind, this.line);
 }
 
 class GanttChartScreen extends StatefulWidget {
