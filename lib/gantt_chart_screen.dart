@@ -5,22 +5,23 @@ import 'package:rtt/ui.dart';
 import 'package:tuple/tuple.dart';
 import 'package:intl/intl.dart';
 
-Color ColorRGB(int r, int g, int b) => Color.fromARGB(255, r, g, b);
-int helperFade(int c, double f) => 255 - ((255 - c) * f).toInt();
-Color fade(Color c) {
-  double f = 0.4;
-  return ColorRGB(
-    helperFade(c.red, f),
-    helperFade(c.green, f),
-    helperFade(c.blue, f),
+extension myColor on Color {
+  static Color fromRGB(int r, int g, int b) => Color.fromARGB(255, r, g, b);
+  Color fade(double f) => Color.fromARGB(
+      this.alpha,
+      _helperFade(this.red, f),
+      _helperFade(this.green, f),
+      _helperFade(this.blue, f),
   );
+
+  int _helperFade(int c, double f) => 255 - ((255 - c) * f).toInt();
 }
 
 class RATPColors {
-  static final Coquelicot = ColorRGB(255, 20, 0);
-  static final Bleu_outremer = ColorRGB(60, 145, 220);
-  static final Vert_fonce = ColorRGB(0, 100, 60);
-  static final Rose = ColorRGB(255, 130, 180);
+  static final Coquelicot = myColor.fromRGB(255, 20, 0);
+  static final Bleu_outremer =  myColor.fromRGB(60, 145, 220);
+  static final Vert_fonce =  myColor.fromRGB(0, 100, 60);
+  static final Rose =  myColor.fromRGB(255, 130, 180);
 }
 
 class LineInfo {
@@ -114,6 +115,8 @@ class GanttChartScreenState extends State<GanttChartScreen> with TickerProviderS
 }
 
 class GanttChart extends StatelessWidget {
+  final legendBackgroundColor = Colors.grey.shade400;
+
   final AnimationController? animationController;
   DateTime? fromDate;
   DateTime? toDate;
@@ -127,7 +130,6 @@ class GanttChart extends StatelessWidget {
     this.animationController,
     required this.trips,
   }) {
-    assert(this.trips != null);
     assert(this.trips.isNotEmpty);
 
     trips.forEach((t) {
@@ -189,7 +191,7 @@ class GanttChart extends StatelessWidget {
       if (remainingWidth > 0) {
         chartBars.add(Container(
           decoration: BoxDecoration(
-              color: fade(legs[i].transport.color),
+              color: legs[i].transport.color.fade(0.4),
               borderRadius: BorderRadius.circular(10.0),
           ),
           height: 25.0,
@@ -277,7 +279,6 @@ class GanttChart extends StatelessWidget {
   }
 
   Widget buildChartForAllTrips(List<Trip> trips, double chartViewWidth) {
-    final color = ColorRGB(200, 200, 200);
     var tripsBar = trips.map((t) => buildChartForEachTrip(t, chartViewWidth)).toList();
     return Container(
       //height: trips.length * 29.0 + 25.0 + 4.0,
@@ -287,7 +288,7 @@ class GanttChart extends StatelessWidget {
         children: <Widget>[
           Stack(fit: StackFit.loose, children: <Widget>[
             buildGrid(chartViewWidth),
-            buildHeader(chartViewWidth, color),
+            buildHeader(chartViewWidth, legendBackgroundColor),
             Container(
                 margin: EdgeInsets.only(top: 25.0),
                 child: Column(
@@ -302,14 +303,13 @@ class GanttChart extends StatelessWidget {
   }
 
   Widget buildChartForEachTrip(Trip trip, double chartViewWidth) {
-    final color = ColorRGB(200, 200, 200);
     var chartBars = buildChartBars(trip.legs, chartViewWidth);
     return Row(
       children: <Widget>[
         Container(
             width: 3 * minuteWidth,
             height: chartBars.length * 29.0 + 4.0,
-            color: color.withAlpha(100),
+            color: legendBackgroundColor,
             child: Center(
               child: Text(
                 trip.duration!.inMinutes.toString() + " min",

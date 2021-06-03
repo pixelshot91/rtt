@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:rtt/rtt.dart';
-import 'package:tuple/tuple.dart';
-
 import 'gantt_chart_screen.dart';
-
 
 void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
