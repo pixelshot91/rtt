@@ -1,7 +1,6 @@
-import 'dart:html';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:myproject/ui.dart';
 import 'package:tuple/tuple.dart';
 import 'package:intl/intl.dart';
 
@@ -76,9 +75,10 @@ class LineInfo {
   Color color;
   SvgPicture picto;
   
-  LineInfo(this.color, String pictoName)
-      : picto = SvgPicture.asset(pictoName, height: 25);
+  LineInfo(this.color, String pictoId) :
+    picto = SvgPicture.asset("picto/" + pictoIdToName[pictoId]!, height: 25);
 }
+
 
 final LineInfos = {
   Tuple2(TransportKind.RER, "A"): LineInfo(RATPColors.Coquelicot, "RER A"),
@@ -100,13 +100,7 @@ class Transport {
   String line;
   LineInfo? get lineInfo => LineInfos[Tuple2(kind, line)];
   Color get color => lineInfo?.color ?? Colors.grey;
-  SvgPicture get picto => lineInfo?.picto ??
-      SvgPicture.asset(
-    'picto/RERAgenRVB.svg',
-    //width:  20,
-    height: 25,
-    //fit: BoxFit.fill,
-  );
+  SvgPicture get picto => lineInfo?.picto ?? SvgPicture.asset("");
   /*String get pictoPath => pictoIdToPath[id];
   String get id {
     switch (kind) {
