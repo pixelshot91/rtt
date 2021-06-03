@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(runner LANGUAGES CXX)
 
-set(BINARY_NAME "myproject")
-set(APPLICATION_ID "com.example.myproject")
+set(BINARY_NAME "rtt")
+set(APPLICATION_ID "com.example.rtt")
 
 cmake_policy(SET CMP0063 NEW)
 

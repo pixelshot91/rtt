@@ -1,6 +1,6 @@
 {
-    "name": "myproject",
-    "short_name": "myproject",
+    "name": "rtt",
+    "short_name": "rtt",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
