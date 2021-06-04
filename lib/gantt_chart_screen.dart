@@ -1,51 +1,52 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
 import 'package:rtt/rtt.dart';
 import 'package:rtt/ui.dart';
 import 'package:tuple/tuple.dart';
-import 'package:intl/intl.dart';
 
 extension myColor on Color {
   static Color fromRGB(int r, int g, int b) => Color.fromARGB(255, r, g, b);
+
   Color fade(double f) => Color.fromARGB(
-      this.alpha,
-      _helperFade(this.red, f),
-      _helperFade(this.green, f),
-      _helperFade(this.blue, f),
-  );
+        this.alpha,
+        _helperFade(this.red, f),
+        _helperFade(this.green, f),
+        _helperFade(this.blue, f),
+      );
 
   int _helperFade(int c, double f) => 255 - ((255 - c) * f).toInt();
 }
 
 class RATPColors {
   static final Coquelicot = myColor.fromRGB(255, 20, 0);
-  static final Bleu_outremer =  myColor.fromRGB(60, 145, 220);
-  static final Vert_fonce =  myColor.fromRGB(0, 100, 60);
-  static final Rose =  myColor.fromRGB(255, 130, 180);
+  static final Bleu_outremer = myColor.fromRGB(60, 145, 220);
+  static final Vert_fonce = myColor.fromRGB(0, 100, 60);
+  static final Rose = myColor.fromRGB(255, 130, 180);
 }
 
 class LineInfo {
   Color color;
   SvgPicture picto;
-  
-  LineInfo(this.color, String pictoId) :
-    picto = SvgPicture.asset("picto/" + pictoIdToName[pictoId]!, height: 25);
+
+  LineInfo(this.color, String pictoId)
+      : picto = SvgPicture.asset("picto/" + pictoIdToName[pictoId]!, height: legBarHeight);
 }
 
 final LineInfos = {
   Tuple2(TransportKind.RER, "A"): LineInfo(RATPColors.Coquelicot, "RER A"),
   Tuple2(TransportKind.RER, "B"): LineInfo(RATPColors.Bleu_outremer, "RER B"),
-
   Tuple2(TransportKind.METRO, "7"): LineInfo(RATPColors.Rose, "M7"),
-
   Tuple2(TransportKind.BUS, "172"): LineInfo(RATPColors.Vert_fonce, "172"),
 };
 
 extension UI on Transport {
   LineInfo? get lineInfo => LineInfos[Tuple2(kind, line)];
+
   Color get color => lineInfo?.color ?? Colors.grey;
+
   SvgPicture get picto => lineInfo?.picto ?? SvgPicture.asset("");
-  /*String get pictoPath => pictoIdToPath[id];
+/*String get pictoPath => pictoIdToPath[id];
   String get id {
     switch (kind) {
       case TransportKind.RER:
@@ -58,9 +59,13 @@ extension UI on Transport {
   }*/
 }
 
+const legBarHeight = 25.0;
+
 class GanttChartScreen extends StatefulWidget {
   final List<Trip> trips;
+
   GanttChartScreen(this.trips);
+
   @override
   State<StatefulWidget> createState() {
     return new GanttChartScreenState(trips);
@@ -76,8 +81,7 @@ class GanttChartScreenState extends State<GanttChartScreen> with TickerProviderS
   @override
   void initState() {
     super.initState();
-    animationController = new AnimationController(
-        duration: Duration(microseconds: 2000), vsync: this);
+    animationController = new AnimationController(duration: Duration(microseconds: 2000), vsync: this);
     animationController!.forward();
   }
 
@@ -156,62 +160,51 @@ class GanttChart extends StatelessWidget {
       return calculateNumberOfMinutesBetween(fromDate!, projectStartedAt);
   }
 
-  int calculateRemainingWidth(
-      DateTime projectStartedAt, DateTime projectEndedAt) {
-    int projectLength =
-    calculateNumberOfMinutesBetween(projectStartedAt, projectEndedAt);
-    if (projectStartedAt.compareTo(fromDate!) >= 0 &&
-        projectStartedAt.compareTo(toDate!) <= 0) {
+  int calculateRemainingWidth(DateTime projectStartedAt, DateTime projectEndedAt) {
+    int projectLength = calculateNumberOfMinutesBetween(projectStartedAt, projectEndedAt);
+    if (projectStartedAt.compareTo(fromDate!) >= 0 && projectStartedAt.compareTo(toDate!) <= 0) {
       if (projectLength <= viewRange)
         return projectLength;
       else
-        return viewRange -
-            calculateNumberOfMinutesBetween(fromDate!, projectStartedAt);
-    } else if (projectStartedAt.isBefore(fromDate!) &&
-        projectEndedAt.isBefore(fromDate!)) {
+        return viewRange - calculateNumberOfMinutesBetween(fromDate!, projectStartedAt);
+    } else if (projectStartedAt.isBefore(fromDate!) && projectEndedAt.isBefore(fromDate!)) {
       return 0;
-    } else if (projectStartedAt.isBefore(fromDate!) &&
-        projectEndedAt.isBefore(toDate!)) {
-      return projectLength -
-          calculateNumberOfMinutesBetween(projectStartedAt, fromDate!);
-    } else if (projectStartedAt.isBefore(fromDate!) &&
-        projectEndedAt.isAfter(toDate!)) {
+    } else if (projectStartedAt.isBefore(fromDate!) && projectEndedAt.isBefore(toDate!)) {
+      return projectLength - calculateNumberOfMinutesBetween(projectStartedAt, fromDate!);
+    } else if (projectStartedAt.isBefore(fromDate!) && projectEndedAt.isAfter(toDate!)) {
       return viewRange;
     }
     return 0;
   }
 
-  List<Widget> buildChartBars(
-      List<Leg> legs, double chartViewWidth) {
+  List<Widget> buildChartBars(List<Leg> legs, double chartViewWidth) {
     List<Widget> chartBars = [];
 
-    for(int i = 0; i < legs.length; i++) {
-      var remainingWidth =
-      calculateRemainingWidth(legs[i].startTime!, legs[i].endTime!);
+    for (int i = 0; i < legs.length; i++) {
+      var remainingWidth = calculateRemainingWidth(legs[i].startTime!, legs[i].endTime!);
       if (remainingWidth > 0) {
         chartBars.add(Container(
           decoration: BoxDecoration(
-              color: legs[i].transport.color.fade(0.4),
-              borderRadius: BorderRadius.circular(10.0),
+            color: legs[i].transport.color.fade(0.4),
+            borderRadius: BorderRadius.circular(99.0),
           ),
-          height: 25.0,
+          height: legBarHeight,
           width: remainingWidth * minuteWidth,
           margin: EdgeInsets.only(
               left: calculateDistanceToLeftBorder(legs[i].startTime!) * minuteWidth,
               top: i == 0 ? 4.0 : 2.0,
-              bottom: i == legs.length - 1 ? 4.0 : 2.0
-          ),
+              bottom: i == legs.length - 1 ? 4.0 : 2.0),
           alignment: Alignment.centerLeft,
           child: Row(
-              children: [
-                legs[i].transport.picto,
-                Text(
-                  ' ' + legs[i].transport.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 10.0),
-                ),
-              ],
+            children: [
+              legs[i].transport.picto,
+              Text(
+                ' ' + legs[i].transport.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 10.0),
+              ),
+            ],
           ),
         ));
       }
@@ -226,7 +219,7 @@ class GanttChart extends StatelessWidget {
     DateTime tempDate = fromDate!;
 
     headerItems.add(Container(
-      width: 3*minuteWidth,
+      width: 3 * minuteWidth,
       child: new Text(
         ' ',
         textAlign: TextAlign.center,
@@ -264,10 +257,7 @@ class GanttChart extends StatelessWidget {
 
     for (int i = 0; i <= viewRange + 1; i++) {
       gridColumns.add(Container(
-        decoration: BoxDecoration(
-            border: Border(
-                right:
-                BorderSide(color: Colors.grey.withAlpha(100), width: 1.0))),
+        decoration: BoxDecoration(border: Border(right: BorderSide(color: Colors.grey.withAlpha(100), width: 1.0))),
         width: minuteWidth,
         //height: 300.0,
       ));
@@ -290,11 +280,11 @@ class GanttChart extends StatelessWidget {
             buildGrid(chartViewWidth),
             buildHeader(chartViewWidth, legendBackgroundColor),
             Container(
-                margin: EdgeInsets.only(top: 25.0),
-                child: Column(
-                  children: tripsBar,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                ),
+              margin: EdgeInsets.only(top: 25.0),
+              child: Column(
+                children: tripsBar,
+                crossAxisAlignment: CrossAxisAlignment.start,
+              ),
             ),
           ]),
         ],
@@ -307,17 +297,17 @@ class GanttChart extends StatelessWidget {
     return Row(
       children: <Widget>[
         Container(
-            width: 3 * minuteWidth,
-            height: chartBars.length * 29.0 + 4.0,
-            color: legendBackgroundColor,
-            child: Center(
-              child: Text(
-                trip.duration!.inMinutes.toString() + " min",
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
+          width: 3 * minuteWidth,
+          height: chartBars.length * 29.0 + 4.0,
+          color: legendBackgroundColor,
+          child: Center(
+            child: Text(
+              trip.duration!.inMinutes.toString() + " min",
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
+          ),
         ),
         Stack(
           //crossAxisAlignment: CrossAxisAlignment.start,
@@ -350,4 +340,3 @@ class GanttChart extends StatelessWidget {
     );*/
   }
 }
-

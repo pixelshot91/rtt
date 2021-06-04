@@ -18,7 +18,9 @@ var transportKindNames = {
 class Transport {
   TransportKind kind;
   String line;
+
   String get name => transportKindNames[kind]! + ' ' + line;
+
   Transport(this.kind, this.line);
 }
 
@@ -46,12 +48,12 @@ class Leg {
   DateTime? get endTime => startTime?.add(duration!);
 
   Leg copyWith({DateTime? startTime}) => Leg(
-    this.transport,
-    this.locFrom,
-    this.locTo,
-    duration: this.duration,
-    startTime: startTime ?? this.startTime,
-  );
+        this.transport,
+        this.locFrom,
+        this.locTo,
+        duration: this.duration,
+        startTime: startTime ?? this.startTime,
+      );
 
   @override
   String toString() {
@@ -63,13 +65,11 @@ class Leg {
   }
 }
 
-
 final tripRequest = Trip(legs: [
   Leg(Transport(TransportKind.METRO, "7"), "VJ", "Opera", duration: Duration(minutes: 25)),
   Leg(Transport(TransportKind.WALK, ""), "Opera", "Auber", duration: Duration(minutes: 5)),
   Leg(Transport(TransportKind.RER, "A"), "Auber", "Rueil", duration: Duration(minutes: 20)),
 ]);
-
 
 DateTime todayWithTime(int hour, int minute) {
   final n = DateTime.now();
@@ -83,7 +83,7 @@ DateTime todayWithTime(int hour, int minute) {
 
 final SCHEDULES = {
   TransportKind.METRO: Tuple3(todayWithTime(19, 05), Duration(minutes: 10), todayWithTime(23, 30)),
-  TransportKind.RER  : Tuple3(todayWithTime(19, 10), Duration(minutes: 30), todayWithTime(23, 50)),
+  TransportKind.RER: Tuple3(todayWithTime(19, 10), Duration(minutes: 30), todayWithTime(23, 50)),
 };
 
 final margin = Duration(minutes: 31);
@@ -118,7 +118,7 @@ Iterable<Trip> suggestTrip(Trip request, DateTime departure) sync* {
   }
 }
 
-Iterable<Leg> suggestLegs(Leg request, DateTime departure) sync*{
+Iterable<Leg> suggestLegs(Leg request, DateTime departure) sync* {
   /*findSchedules(request.transport, request.locFrom, departure).map((t) =>
     request.copyWith(startTime: t)
   );*/
