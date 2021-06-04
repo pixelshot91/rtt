@@ -30,10 +30,17 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  late List<Trip> suggestedTrips;
+
+  @override
+  void initState() {
+    super.initState();
+    suggestedTrips = suggestTrip(tripRequest, todayWithTime(19, 30)).toList();
+    print("suggestedTrips = $suggestedTrips");
+  }
+
   @override
   Widget build(BuildContext context) {
-    final List<Trip> suggestedTrips = suggestTrip(tripRequest, todayWithTime(19, 30)).toList();
-    print("suggestedTrips = $suggestedTrips");
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
