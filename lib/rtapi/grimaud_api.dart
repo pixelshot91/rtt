@@ -36,6 +36,9 @@ extension GrimaudDirection on Direction {
 }
 
 class GrimaudAPI extends RTAPI {
+  final http.Client client;
+  GrimaudAPI(this.client);
+
   @override
   Future<List<Schedule>> getSchedule(Transport transport, Station station, Direction direction) async {
     final http.Response resp = await callApi(['schedules', transport.URL, station.name, direction.URL]);
@@ -80,7 +83,7 @@ class GrimaudAPI extends RTAPI {
     const baseUrl = 'https://api-ratp.pierre-grimaud.fr/v4/';
     final url = baseUrl + args.join('/');
     print("GET on $url");
-    final response = await http.get(Uri.parse(url));
+    final response = await client.get(Uri.parse(url));
     print("Response (${response.statusCode}):\n ${response.body}");
     return response;
   }
