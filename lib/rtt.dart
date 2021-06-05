@@ -76,10 +76,26 @@ DateTime todayWithTime(int hour, int minute) {
   return DateTime(n.year, n.month, n.day, hour, minute);
 }
 
-/*class Station {
+class Station {
   String name;
   String slug;
-}*/
+
+  Station(this.name, this.slug);
+}
+
+enum Direction {
+  A,
+  B,
+}
+
+class Schedule {
+  Transport transport;
+  Station station;
+  Direction direction;
+  DateTime time;
+
+  Schedule(this.transport, this.station, this.direction, this.time);
+}
 
 final SCHEDULES = {
   TransportKind.METRO: Tuple3(todayWithTime(19, 05), Duration(minutes: 10), todayWithTime(23, 30)),
