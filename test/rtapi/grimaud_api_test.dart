@@ -41,9 +41,15 @@ void main() {
 
   bool almostEqual(DateTime d1, DateTime d2) => d1.difference(d2).abs() < Duration(seconds: 1);
 
+  late http.Client client;
+  late GrimaudAPI api;
+
+  setUp(() {
+    client = MockClient();
+    api = GrimaudAPI(client);
+  });
+
   test('Get BUS schedule', () async {
-    final client = MockClient();
-    final api = GrimaudAPI(client);
     when(client.get(
             Uri.parse('https://api-ratp.pierre-grimaud.fr/v4/schedules/buses/172/villejuif%2B%2B%2Blouis%2Baragon/R')))
         .thenAnswer((_) async => http.Response(busScheduleBody, 200));
@@ -54,11 +60,11 @@ void main() {
   });
 
   test('Parse BUS schedule response', () {
-    var api = GrimaudAPI(MockClient());
     List<DateTime> times = api.parseBusResponse(busScheduleBody);
     final expectedTimes = [Duration(minutes: 7), Duration(minutes: 15)].map((d) => DateTime.now().add(d));
 
     expect(times.length, expectedTimes.length);
     assert(zip([times, expectedTimes]).every((pair) => almostEqual(pair[0], pair[1])));
+    verifyZeroInteractions(client);
   });
 }
