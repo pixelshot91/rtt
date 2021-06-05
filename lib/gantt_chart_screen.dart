@@ -76,6 +76,7 @@ class GanttChartScreenState extends State<GanttChartScreen> with TickerProviderS
   AnimationController? animationController;
   final Stream<Trip> tripsStream;
   List<Trip> trips = [];
+  bool streamDone = false;
 
   GanttChartScreenState(this.tripsStream);
 
@@ -85,16 +86,18 @@ class GanttChartScreenState extends State<GanttChartScreen> with TickerProviderS
     animationController = new AnimationController(duration: Duration(microseconds: 2000), vsync: this);
     animationController!.forward();
 
-    tripsStream.forEach((t) {
+    tripsStream.listen((t) {
       setState(() {
         this.trips.add(t);
       });
-    });
+    }, onDone: () => streamDone = true);
   }
 
   Widget buildAppBar() {
+    List<Widget> widgets = [Text('Suggested Trips ')];
+    if (!streamDone) widgets.add(CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Colors.white)));
     return AppBar(
-      title: Text('Suggested Trips'),
+      title: Row(children: widgets),
     );
   }
 
