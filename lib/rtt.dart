@@ -162,6 +162,8 @@ Stream<DateTime> findSchedules(Transport t, String from, Direction d, DateTime d
   for (var d in datetimes) {
     if (d.isAfter(departure)) {
       print("findSchedules yielding $d");
+      //sleep(Duration(seconds: 1));
+      await Future.delayed(Duration(seconds: 1));
       yield d;
     }
   }

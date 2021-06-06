@@ -50,8 +50,13 @@ class GrimaudAPI extends RTAPI {
       case TransportKind.METRO:
         return _parseMETROResponse(resp.body);*/
       case TransportKind.BUS:
-        final List<DateTime> schedules = parseBusResponse(resp.body);
-        return schedules.map((time) => Schedule(transport, station, direction, time)).toList();
+        /*final List<DateTime> schedules = parseBusResponse(resp.body);
+        return schedules.map((time) => Schedule(transport, station, direction, time)).toList();*/
+        return Future.delayed(
+            Duration(seconds: 1),
+            () => [Duration(minutes: 5), Duration(minutes: 10), Duration(minutes: 18)]
+                .map((d) => Schedule(transport, station, direction, DateTime.now().add(d)))
+                .toList());
       default:
         throw "Can't get schedules for ${transport.kind}";
     }
@@ -84,8 +89,13 @@ class GrimaudAPI extends RTAPI {
     const baseUrl = 'https://api-ratp.pierre-grimaud.fr/v4/';
     final url = baseUrl + args.join('/');
     print("GET on $url");
-    final response = await client.get(Uri.parse(url));
+    return Future.delayed(Duration(seconds: 1), () async {
+      final response = await client.get(Uri.parse(url));
+      print("Response (${response.statusCode}):\n ${response.body}");
+      return response;
+    });
+    /*final response = await client.get(Uri.parse(url));
     print("Response (${response.statusCode}):\n ${response.body}");
-    return response;
+    return response;*/
   }
 }
