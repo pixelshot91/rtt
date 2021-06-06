@@ -42,8 +42,8 @@ class GrimaudAPI extends RTAPI {
 
   @override
   Future<List<Schedule>> getSchedule(Transport transport, Station station, Direction direction) async {
-    final http.Response resp = await callApi(['schedules', transport.URL, station.name, direction.URL]);
-    if (resp.statusCode != 200) throw ("Http error: Received status code ${resp.statusCode}");
+    /*final http.Response resp = await callApi(['schedules', transport.URL, station.name, direction.URL]);
+    if (resp.statusCode != 200) throw ("Http error: Received status code ${resp.statusCode}");*/
     switch (transport.kind) {
       /*case TransportKind.RER:
         return _parseRERResponse(resp.body);
@@ -54,7 +54,7 @@ class GrimaudAPI extends RTAPI {
         return schedules.map((time) => Schedule(transport, station, direction, time)).toList();*/
         return Future.delayed(
             Duration(seconds: 1),
-            () => [Duration(minutes: 5), Duration(minutes: 10), Duration(minutes: 18)]
+            () => [Duration(minutes: 5), Duration(minutes: 10), Duration(minutes: 38)]
                 .map((d) => Schedule(transport, station, direction, DateTime.now().add(d)))
                 .toList());
       default:
