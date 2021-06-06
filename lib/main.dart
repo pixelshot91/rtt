@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rtt/rtapi/grimaud_api.dart';
 import 'package:rtt/rtt.dart';
 
 import 'gantt_chart_screen.dart';
@@ -35,7 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    final rtt = RTT();
+    final rtt = RTT(GrimaudAPI());
     suggestedTrips = rtt.suggestTrip(tripRequest, DateTime.now());
     print("suggestedTrips = $suggestedTrips");
   }

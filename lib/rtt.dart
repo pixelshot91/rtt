@@ -1,5 +1,6 @@
 import 'package:intl/intl.dart';
-import 'package:rtt/rtapi/grimaud_api.dart';
+import 'package:quiver/core.dart';
+import 'package:rtt/rtapi/api.dart';
 import 'package:tuple/tuple.dart';
 
 enum TransportKind {
@@ -23,6 +24,9 @@ class Transport {
   String get name => transportKindNames[kind]! + ' ' + line;
 
   Transport(this.kind, this.line);
+
+  bool operator ==(o) => o is Transport && kind == o.kind && line == o.line;
+  int get hashCode => hash2(kind, line);
 }
 
 class Trip {
@@ -90,6 +94,9 @@ DateTime todayWithTime(int hour, int minute) {
 class Station {
   String name;
   Station(this.name);
+
+  bool operator ==(o) => o is Station && name == o.name;
+  int get hashCode => name.hashCode;
 }
 
 enum Direction {
@@ -111,19 +118,11 @@ final SCHEDULES = {
   TransportKind.RER: Tuple3(todayWithTime(19, 10), Duration(minutes: 30), todayWithTime(23, 50)),
 };
 
-/*class findScheduleParam {
-  Transport transport;
-  Station station;
-  Direction direction;
-  
-}*/
-
 class RTT {
+  final RTAPI api;
   final margin;
 
-  //var Map<Transport t, String from, Direction d, List<Schedule>>scheduleCache = {}
-
-  RTT({this.margin = const Duration(minutes: 31)});
+  RTT(this.api, {this.margin = const Duration(minutes: 31)});
 
   Stream<Trip> suggestTrip(Trip request, DateTime departure) async* {
     print("rest = $request");
@@ -172,9 +171,6 @@ class RTT {
       return;
     }
 
-    //schedulesCache
-
-    final api = GrimaudAPI();
     final schedules = await api.getSchedule(t, from, d);
     final datetimes = schedules.map((s) => s.time).toList();
     for (var d in datetimes) {

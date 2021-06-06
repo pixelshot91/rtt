@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:quiver/iterables.dart';
+import 'package:rtt/rtapi/api.dart';
 import 'package:rtt/rtapi/grimaud_api.dart';
 import 'package:rtt/rtt.dart';
 
@@ -57,6 +58,54 @@ void main() {
         ['schedules', Transport(TransportKind.BUS, '172').URL, 'villejuif%2B%2B%2Blouis%2Baragon', Direction.B.URL]);
     expect(r.statusCode, 200);
     expect(r.body, busScheduleBody);
+  });
+
+  test('Get BUS schedule. API should be called once', () async {
+    var counter = 0;
+    when(client.get(Uri.parse('https://api-ratp.pierre-grimaud.fr/v4/schedules/buses/172/villejuif+++louis+aragon/R')))
+        .thenAnswer((_) async {
+      counter += 1;
+      return http.Response(busScheduleBody, 200);
+    });
+    var schedules_1 =
+        await api.getSchedule(Transport(TransportKind.BUS, '172'), Station('Villejuif - Louis Aragon'), Direction.B);
+    var schedules_2 =
+        await api.getSchedule(Transport(TransportKind.BUS, '172'), Station('Villejuif - Louis Aragon'), Direction.B);
+
+    expect(schedules_1, schedules_2);
+    expect(counter, 1);
+  });
+
+  test('Map test FindScheduleParam', () {
+    final p1 = FindScheduleParam(Transport(TransportKind.RER, 'B'), Station('s'), Direction.A);
+    final p2 = FindScheduleParam(Transport(TransportKind.RER, 'B'), Station('s'), Direction.A);
+
+    Map<FindScheduleParam, String> m = {p1: 'Hello'};
+    expect(m[p2], 'Hello');
+  });
+
+  test('Map test Transport', () {
+    final p1 = Transport(TransportKind.RER, 'B');
+    final p2 = Transport(TransportKind.RER, 'B');
+
+    Map<Transport, String> m = {p1: 'Hello'};
+    expect(m[p2], 'Hello');
+  });
+
+  test('Map test Station', () {
+    final p1 = Station('B');
+    final p2 = Station('B');
+
+    Map<Station, String> m = {p1: 'Hello'};
+    expect(m[p2], 'Hello');
+  });
+
+  test('Map test String', () {
+    final p1 = 'B';
+    final p2 = 'B';
+
+    Map<String, String> m = {p1: 'Hello'};
+    expect(m[p2], 'Hello');
   });
 
   test('Parse BUS schedule response', () {
