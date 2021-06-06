@@ -194,10 +194,7 @@ class GanttChart extends StatelessWidget {
           ),
           height: legBarHeight,
           width: remainingWidth * minuteWidth,
-          margin: EdgeInsets.only(
-              left: calculateDistanceToLeftBorder(legs[i].startTime!) * minuteWidth,
-              top: i == 0 ? 4.0 : 2.0,
-              bottom: i == legs.length - 1 ? 4.0 : 2.0),
+          margin: EdgeInsets.only(left: calculateDistanceToLeftBorder(legs[i].startTime!) * minuteWidth),
           alignment: Alignment.centerLeft,
           child: Row(
             children: [
@@ -302,7 +299,7 @@ class GanttChart extends StatelessWidget {
       children: <Widget>[
         Container(
           width: 3 * minuteWidth,
-          height: chartBars.length * 29.0 + 4.0,
+          height: legBarHeight + 10,
           color: legendBackgroundColor,
           child: Center(
             child: Text(
