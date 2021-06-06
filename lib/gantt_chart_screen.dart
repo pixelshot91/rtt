@@ -87,11 +87,10 @@ class GanttChartScreenState extends State<GanttChartScreen> with TickerProviderS
     animationController = new AnimationController(duration: Duration(microseconds: 2000), vsync: this);
     animationController!.forward();
 
-    tripsStream.listen((t) {
-      setState(() {
-        this.trips.add(t);
-      });
-    }, onDone: () => streamDone = true);
+    tripsStream.listen(
+      (t) => setState(() => this.trips.add(t)),
+      onDone: () => setState(() => this.streamDone = true),
+    );
   }
 
   Widget buildAppBar() {
