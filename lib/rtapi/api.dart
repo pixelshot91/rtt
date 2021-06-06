@@ -24,7 +24,7 @@ abstract class RTAPI {
   Duration maxCacheLife;
   Map<FindScheduleParam, CachedSchedules> scheduleCache = {};
 
-  RTAPI({this.maxCacheLife = const Duration(minutes: 1)});
+  RTAPI({Duration? maxCacheLife}) : this.maxCacheLife = maxCacheLife ?? Duration(minutes: 1);
 
   Future<List<Schedule>> getSchedule(Transport transport, Station station, Direction direction) async {
     var findScheduleParams = FindScheduleParam(transport, station, direction);

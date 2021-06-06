@@ -49,7 +49,7 @@ void main() {
 
   setUp(() {
     client = MockClient();
-    api = GrimaudAPI.withClient(client);
+    api = GrimaudAPI.withClient(client, maxCacheLife: Duration(seconds: 2));
   });
 
   test('Get BUS schedule', () async {
@@ -78,7 +78,7 @@ void main() {
     expect(counter, 1);
   });
 
-  test('Get BUS schedule with big pause between. API should be called twi', () async {
+  test('Get BUS schedule with big pause between. API should be called twice', () async {
     var counter = 0;
     when(client.get(Uri.parse('https://api-ratp.pierre-grimaud.fr/v4/schedules/buses/172/villejuif+++louis+aragon/R')))
         .thenAnswer((_) async {

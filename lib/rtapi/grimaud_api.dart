@@ -49,8 +49,10 @@ extension GrimaudStation on Station {
 
 class GrimaudAPI extends RTAPI {
   final http.Client client;
-  GrimaudAPI() : client = http.Client();
-  GrimaudAPI.withClient(this.client);
+  GrimaudAPI({Duration? maxCacheLife})
+      : client = http.Client(),
+        super(maxCacheLife: maxCacheLife);
+  GrimaudAPI.withClient(this.client, {Duration? maxCacheLife}) : super(maxCacheLife: maxCacheLife);
 
   @override
   Future<List<Schedule>> getScheduleNoCache(Transport transport, Station station, Direction direction) async {

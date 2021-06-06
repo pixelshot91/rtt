@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
 import 'package:quiver/core.dart';
 import 'package:rtt/rtapi/api.dart';
@@ -38,6 +39,9 @@ class Trip {
 
   @override
   String toString() => "Trip :\n" + legs.join("\n");
+
+  @override
+  bool operator ==(Object o) => o is Trip && ListEquality().equals(legs, o.legs);
 }
 
 // TODO: create LegRequirements and SuggestedLeg
@@ -65,11 +69,21 @@ class Leg {
   @override
   String toString() {
     String s = "";
-    s += transport.name;
+    s += transport.name + ' from ' + from.name + ' to ' + to.name + '(dir: ' + direction.toString() + ')';
     s += ", " + (startTime == null ? "?" : DateFormat('Hm').format(startTime!));
     s += " -> " + (endTime == null ? "?" : DateFormat('Hm').format(endTime!));
     return s;
   }
+
+  @override
+  bool operator ==(Object o) =>
+      o is Leg &&
+      transport == o.transport &&
+      from == o.from &&
+      to == o.to &&
+      direction == o.direction &&
+      duration == o.duration &&
+      startTime == o.startTime;
 }
 
 final tripRequest = Trip(legs: [
@@ -111,6 +125,9 @@ class Schedule {
   DateTime time;
 
   Schedule(this.transport, this.station, this.direction, this.time);
+
+  @override
+  String toString() => 'Schedule(transport: $transport, station: $station, direction: $direction, time: $time)';
 }
 
 final SCHEDULES = {
