@@ -13,22 +13,29 @@ class FindScheduleParam {
   int get hashCode => hash3(transport, station, direction);
 }
 
+class CachedSchedules {
+  DateTime lastUpdateAt;
+  List<Schedule> schedules;
+
+  CachedSchedules(this.lastUpdateAt, this.schedules);
+}
+
 abstract class RTAPI {
-  Map<FindScheduleParam, List<Schedule>> scheduleCache = {};
+  Duration maxCacheLife;
+  Map<FindScheduleParam, CachedSchedules> scheduleCache = {};
+
+  RTAPI({this.maxCacheLife = const Duration(minutes: 1)});
 
   Future<List<Schedule>> getSchedule(Transport transport, Station station, Direction direction) async {
-    print("getSchedules. Looking in cache. length = ${scheduleCache.length}");
-    print(scheduleCache);
     var findScheduleParams = FindScheduleParam(transport, station, direction);
-
-    var findScheduleParams2 = FindScheduleParam(transport, station, direction);
-    print(findScheduleParams == findScheduleParams2);
-    print(findScheduleParams.hashCode == findScheduleParams2.hashCode);
     final cachedSchedules = scheduleCache[findScheduleParams];
+
     print("cache = $cachedSchedules");
-    if (cachedSchedules != null) return Future(() => cachedSchedules);
+    if (cachedSchedules != null && DateTime.now().difference(cachedSchedules.lastUpdateAt) < maxCacheLife) {
+      return Future(() => cachedSchedules.schedules);
+    }
     final schedules = await getScheduleNoCache(transport, station, direction);
-    scheduleCache[findScheduleParams] = schedules;
+    scheduleCache[findScheduleParams] = CachedSchedules(DateTime.now(), schedules);
     print('scheduleCache.length = ${scheduleCache.length}');
     return schedules;
   }

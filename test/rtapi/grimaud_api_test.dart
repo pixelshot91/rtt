@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mockito/annotations.dart';
@@ -60,7 +62,7 @@ void main() {
     expect(r.body, busScheduleBody);
   });
 
-  test('Get BUS schedule. API should be called once', () async {
+  test('Get BUS schedule twice. API should be called once', () async {
     var counter = 0;
     when(client.get(Uri.parse('https://api-ratp.pierre-grimaud.fr/v4/schedules/buses/172/villejuif+++louis+aragon/R')))
         .thenAnswer((_) async {
@@ -74,6 +76,22 @@ void main() {
 
     expect(schedules_1, schedules_2);
     expect(counter, 1);
+  });
+
+  test('Get BUS schedule with big pause between. API should be called twi', () async {
+    var counter = 0;
+    when(client.get(Uri.parse('https://api-ratp.pierre-grimaud.fr/v4/schedules/buses/172/villejuif+++louis+aragon/R')))
+        .thenAnswer((_) async {
+      counter += 1;
+      return http.Response(busScheduleBody, 200);
+    });
+    var schedules_1 =
+        await api.getSchedule(Transport(TransportKind.BUS, '172'), Station('Villejuif - Louis Aragon'), Direction.B);
+    sleep(Duration(seconds: 2));
+    var schedules_2 =
+        await api.getSchedule(Transport(TransportKind.BUS, '172'), Station('Villejuif - Louis Aragon'), Direction.B);
+
+    expect(counter, 2);
   });
 
   test('Map test FindScheduleParam', () {
