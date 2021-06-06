@@ -46,7 +46,7 @@ void main() {
 
   setUp(() {
     client = MockClient();
-    api = GrimaudAPI(client);
+    api = GrimaudAPI.withClient(client);
   });
 
   test('Get BUS schedule', () async {

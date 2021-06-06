@@ -30,12 +30,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late List<Trip> suggestedTrips;
+  late Stream<Trip> suggestedTrips;
 
   @override
   void initState() {
     super.initState();
-    suggestedTrips = suggestTrip(tripRequest, todayWithTime(19, 30)).toList();
+    suggestedTrips = suggestTrip(tripRequest, DateTime.now());
     print("suggestedTrips = $suggestedTrips");
   }
 

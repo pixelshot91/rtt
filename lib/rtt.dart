@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:rtt/rtapi/grimaud_api.dart';
 import 'package:tuple/tuple.dart';
 
 enum TransportKind {
@@ -40,10 +41,11 @@ class Leg {
   Transport transport;
   String locFrom;
   String locTo;
+  Direction direction;
   Duration? duration;
   DateTime? startTime;
 
-  Leg(this.transport, this.locFrom, this.locTo, {this.duration, this.startTime});
+  Leg(this.transport, this.locFrom, this.locTo, this.direction, {this.duration, this.startTime});
 
   DateTime? get endTime => startTime?.add(duration!);
 
@@ -51,6 +53,7 @@ class Leg {
         this.transport,
         this.locFrom,
         this.locTo,
+        this.direction,
         duration: this.duration,
         startTime: startTime ?? this.startTime,
       );
@@ -66,10 +69,14 @@ class Leg {
 }
 
 final tripRequest = Trip(legs: [
-  Leg(Transport(TransportKind.METRO, "7"), "VJ", "Opera", duration: Duration(minutes: 25)),
-  Leg(Transport(TransportKind.WALK, ""), "Opera", "Auber", duration: Duration(minutes: 5)),
-  Leg(Transport(TransportKind.RER, "A"), "Auber", "Rueil", duration: Duration(minutes: 20)),
+  Leg(Transport(TransportKind.BUS, "172"), "villejuif%2B%2B%2Blouis%2Baragon", "Opera", Direction.A,
+      duration: Duration(minutes: 25)),
 ]);
+/*final tripRequest = Trip(legs: [
+  Leg(Transport(TransportKind.METRO, "7"), "VJ", "Opera", Direction.A, duration: Duration(minutes: 25)),
+  Leg(Transport(TransportKind.WALK, ""), "Opera", "Auber", Direction.A, duration: Duration(minutes: 5)),
+  Leg(Transport(TransportKind.RER, "A"), "Auber", "Rueil", Direction.A, duration: Duration(minutes: 20)),
+]);*/
 
 DateTime todayWithTime(int hour, int minute) {
   final n = DateTime.now();
@@ -78,9 +85,7 @@ DateTime todayWithTime(int hour, int minute) {
 
 class Station {
   String name;
-  String slug;
-
-  Station(this.name, this.slug);
+  Station(this.name);
 }
 
 enum Direction {
@@ -104,12 +109,12 @@ final SCHEDULES = {
 
 final margin = Duration(minutes: 31);
 
-Iterable<Trip> suggestTrip(Trip request, DateTime departure) sync* {
+Stream<Trip> suggestTrip(Trip request, DateTime departure) async* {
   print("rest = $request");
   List<Leg> rest = request.legs.length > 1 ? request.legs.sublist(1) : [];
   DateTime? best;
   print("arg = ${request.legs.first}");
-  for (Leg first in suggestLegs(request.legs.first, departure)) {
+  await for (Leg first in suggestLegs(request.legs.first, departure)) {
     print("Leg = $first");
     if (best != null && first.endTime!.isAfter(best.add(margin))) {
       break;
@@ -120,7 +125,7 @@ Iterable<Trip> suggestTrip(Trip request, DateTime departure) sync* {
     }
     var suggestRests = suggestTrip(Trip(legs: rest), first.endTime!);
     print("For suggestRest");
-    for (Trip suggestRest in suggestRests) {
+    await for (Trip suggestRest in suggestRests) {
       print("For iter suggestRest");
       final endTime = suggestRest.legs.last.endTime!;
       if (best == null || best.isAfter(endTime)) {
@@ -134,31 +139,30 @@ Iterable<Trip> suggestTrip(Trip request, DateTime departure) sync* {
   }
 }
 
-Iterable<Leg> suggestLegs(Leg request, DateTime departure) sync* {
+Stream<Leg> suggestLegs(Leg request, DateTime departure) async* {
   /*findSchedules(request.transport, request.locFrom, departure).map((t) =>
     request.copyWith(startTime: t)
   );*/
   print("SuggestedLegs start");
-  for (DateTime d in findSchedules(request.transport, request.locFrom, departure)) {
+  await for (DateTime d in findSchedules(request.transport, request.locFrom, request.direction, departure)) {
     print("Yield SuggestedLeg");
     yield request.copyWith(startTime: d);
   }
 }
 
-Iterable<DateTime> findSchedules(Transport t, String from, DateTime departure) sync* {
+Stream<DateTime> findSchedules(Transport t, String from, Direction d, DateTime departure) async* {
   if (t.kind == TransportKind.WALK) {
     yield departure;
     return;
   }
-  final first = SCHEDULES[t.kind]!.item1;
-  final freq = SCHEDULES[t.kind]!.item2;
-  final last = SCHEDULES[t.kind]!.item3;
-  var s = first;
-  while (s.isBefore(last)) {
-    if (s.isAfter(departure)) {
-      print("t.kind = ${t.kind} Yield schedule at time = $s");
-      yield s;
+
+  final api = GrimaudAPI();
+  final schedules = await api.getSchedule(t, Station(from), d);
+  final datetimes = schedules.map((s) => s.time).toList();
+  for (var d in datetimes) {
+    if (d.isAfter(departure)) {
+      print("findSchedules yielding $d");
+      yield d;
     }
-    s = s.add(freq);
   }
 }

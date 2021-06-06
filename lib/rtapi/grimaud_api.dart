@@ -37,7 +37,8 @@ extension GrimaudDirection on Direction {
 
 class GrimaudAPI extends RTAPI {
   final http.Client client;
-  GrimaudAPI(this.client);
+  GrimaudAPI() : client = http.Client();
+  GrimaudAPI.withClient(this.client);
 
   @override
   Future<List<Schedule>> getSchedule(Transport transport, Station station, Direction direction) async {

@@ -62,7 +62,7 @@ extension UI on Transport {
 const legBarHeight = 25.0;
 
 class GanttChartScreen extends StatefulWidget {
-  final List<Trip> trips;
+  final Stream<Trip> trips;
 
   GanttChartScreen(this.trips);
 
@@ -74,15 +74,22 @@ class GanttChartScreen extends StatefulWidget {
 
 class GanttChartScreenState extends State<GanttChartScreen> with TickerProviderStateMixin {
   AnimationController? animationController;
-  final List<Trip> trips;
+  final Stream<Trip> tripsStream;
+  List<Trip> trips = [];
 
-  GanttChartScreenState(this.trips);
+  GanttChartScreenState(this.tripsStream);
 
   @override
   void initState() {
     super.initState();
     animationController = new AnimationController(duration: Duration(microseconds: 2000), vsync: this);
     animationController!.forward();
+
+    tripsStream.forEach((t) {
+      setState(() {
+        this.trips.add(t);
+      });
+    });
   }
 
   Widget buildAppBar() {
