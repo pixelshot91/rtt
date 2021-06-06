@@ -8,33 +8,9 @@ class FindScheduleParam {
 
   FindScheduleParam(this.transport, this.station, this.direction);
 
-  /*int get hashCode {
-    return hashObjects([product, model, element, locationName, locationSuffix]);
-  }
-
-  bool operator ==(other) {
-    if (other is! TimeseriesNode) return false;
-    TimeseriesNode key = other;
-    return (key.element == element &&
-        key.locationName == locationName &&
-        key.locationSuffix == locationSuffix &&
-        key.model == model &&
-        key.product == product);
-  }*/
-  bool operator ==(o) {
-    final res = o is FindScheduleParam && transport == o.transport && station == o.station && direction == o.direction;
-    print('== $res');
-    return res;
-  }
-
-  int get hashCode {
-    final h = hash3(transport, station, direction);
-    print("hash = $h");
-    return h;
-  }
-
-  @override
-  String toString() => transport.toString() + station.toString() + direction.toString();
+  bool operator ==(o) =>
+      o is FindScheduleParam && transport == o.transport && station == o.station && direction == o.direction;
+  int get hashCode => hash3(transport, station, direction);
 }
 
 abstract class RTAPI {
