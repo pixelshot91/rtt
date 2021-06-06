@@ -240,7 +240,8 @@ class GanttChart extends StatelessWidget {
           DateFormat("Hm").format(tempDate),
           textAlign: TextAlign.left,
           style: TextStyle(
-            fontSize: 10.0,
+            fontSize: tempDate.minute == 0 ? 12.0 : 10.0,
+            fontWeight: tempDate.minute == 0 ? FontWeight.bold : null,
           ),
         ),
       ));
