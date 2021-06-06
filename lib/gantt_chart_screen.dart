@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:rtt/rtt.dart';
 import 'package:rtt/ui.dart';
+import 'package:timer_builder/timer_builder.dart';
 import 'package:tuple/tuple.dart';
 
 extension myColor on Color {
@@ -220,19 +221,18 @@ class GanttChart extends StatelessWidget {
   Widget buildHeader(double chartViewWidth, Color color) {
     List<Widget> headerItems = [];
 
-    DateTime tempDate = fromDate;
-
+    final int intervalMinutes = 5;
+    DateTime tempDate = alignDateTime(fromDate, Duration(minutes: 5), true);
     headerItems.add(Container(
       width: 3 * minuteWidth,
-      child: new Text(
-        ' ',
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 10.0,
-        ),
-      ),
     ));
-    int intervalMinutes = 5;
+
+    // Initial container is smaller to align to intervalMinutes
+    headerItems.add(Container(
+      width: tempDate.difference(fromDate).inMinutes * minuteWidth,
+    ));
+
+    // TODO: center time on line
     for (int i = 0; i < viewRange / intervalMinutes; i++) {
       headerItems.add(Container(
         width: intervalMinutes * minuteWidth,
