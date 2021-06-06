@@ -39,20 +39,20 @@ class Trip {
 // TODO: create LegRequirements and SuggestedLeg
 class Leg {
   Transport transport;
-  String locFrom;
-  String locTo;
+  Station from;
+  Station to;
   Direction direction;
   Duration? duration;
   DateTime? startTime;
 
-  Leg(this.transport, this.locFrom, this.locTo, this.direction, {this.duration, this.startTime});
+  Leg(this.transport, this.from, this.to, this.direction, {this.duration, this.startTime});
 
   DateTime? get endTime => startTime?.add(duration!);
 
   Leg copyWith({DateTime? startTime}) => Leg(
         this.transport,
-        this.locFrom,
-        this.locTo,
+        this.from,
+        this.to,
         this.direction,
         duration: this.duration,
         startTime: startTime ?? this.startTime,
@@ -69,8 +69,12 @@ class Leg {
 }
 
 final tripRequest = Trip(legs: [
-  Leg(Transport(TransportKind.BUS, "172"), "villejuif%2B%2B%2Blouis%2Baragon", "Opera", Direction.A,
-      duration: Duration(minutes: 25)),
+  Leg(Transport(TransportKind.BUS, "172"), Station('Villejuif - Louis Aragon'), Station("Opera"), Direction.A,
+      duration: Duration(minutes: 5)),
+  Leg(Transport(TransportKind.METRO, "7"), Station('Villejuif-Louis Aragon'), Station("Opera"), Direction.B,
+      duration: Duration(minutes: 5)),
+  Leg(Transport(TransportKind.METRO, "7"), Station('Villejuif-Louis Aragon'), Station("Opera"), Direction.B,
+      duration: Duration(minutes: 5)),
 ]);
 /*final tripRequest = Trip(legs: [
   Leg(Transport(TransportKind.METRO, "7"), "VJ", "Opera", Direction.A, duration: Duration(minutes: 25)),
@@ -107,62 +111,77 @@ final SCHEDULES = {
   TransportKind.RER: Tuple3(todayWithTime(19, 10), Duration(minutes: 30), todayWithTime(23, 50)),
 };
 
-final margin = Duration(minutes: 31);
+/*class findScheduleParam {
+  Transport transport;
+  Station station;
+  Direction direction;
+  
+}*/
 
-Stream<Trip> suggestTrip(Trip request, DateTime departure) async* {
-  print("rest = $request");
-  List<Leg> rest = request.legs.length > 1 ? request.legs.sublist(1) : [];
-  DateTime? best;
-  print("arg = ${request.legs.first}");
-  await for (Leg first in suggestLegs(request.legs.first, departure)) {
-    print("Leg = $first");
-    if (best != null && first.endTime!.isAfter(best.add(margin))) {
-      break;
-    }
-    if (rest.isEmpty) {
-      yield Trip(legs: [first]);
-      continue;
-    }
-    var suggestRests = suggestTrip(Trip(legs: rest), first.endTime!);
-    print("For suggestRest");
-    await for (Trip suggestRest in suggestRests) {
-      print("For iter suggestRest");
-      final endTime = suggestRest.legs.last.endTime!;
-      if (best == null || best.isAfter(endTime)) {
-        best = endTime;
-      } else if (endTime.isAfter(best.add(margin))) {
+class RTT {
+  final margin;
+
+  //var Map<Transport t, String from, Direction d, List<Schedule>>scheduleCache = {}
+
+  RTT({this.margin = const Duration(minutes: 31)});
+
+  Stream<Trip> suggestTrip(Trip request, DateTime departure) async* {
+    print("rest = $request");
+    List<Leg> rest = request.legs.length > 1 ? request.legs.sublist(1) : [];
+    DateTime? best;
+    print("arg = ${request.legs.first}");
+    await for (Leg first in suggestLegs(request.legs.first, departure)) {
+      print("Leg = $first");
+      if (best != null && first.endTime!.isAfter(best.add(margin))) {
         break;
       }
-      print("Yield Trip with first and tail");
-      yield Trip(legs: [first, ...suggestRest.legs]);
+      if (rest.isEmpty) {
+        yield Trip(legs: [first]);
+        continue;
+      }
+      var suggestRests = suggestTrip(Trip(legs: rest), first.endTime!);
+      print("For suggestRest");
+      await for (Trip suggestRest in suggestRests) {
+        print("For iter suggestRest");
+        final endTime = suggestRest.legs.last.endTime!;
+        if (best == null || best.isAfter(endTime)) {
+          best = endTime;
+        } else if (endTime.isAfter(best.add(margin))) {
+          break;
+        }
+        print("Yield Trip with first and tail");
+        yield Trip(legs: [first, ...suggestRest.legs]);
+      }
     }
   }
-}
 
-Stream<Leg> suggestLegs(Leg request, DateTime departure) async* {
-  /*findSchedules(request.transport, request.locFrom, departure).map((t) =>
+  Stream<Leg> suggestLegs(Leg request, DateTime departure) async* {
+    /*findSchedules(request.transport, request.locFrom, departure).map((t) =>
     request.copyWith(startTime: t)
   );*/
-  print("SuggestedLegs start");
-  await for (DateTime d in findSchedules(request.transport, request.locFrom, request.direction, departure)) {
-    print("Yield SuggestedLeg");
-    yield request.copyWith(startTime: d);
-  }
-}
-
-Stream<DateTime> findSchedules(Transport t, String from, Direction d, DateTime departure) async* {
-  if (t.kind == TransportKind.WALK) {
-    yield departure;
-    return;
+    print("SuggestedLegs start");
+    await for (DateTime d in findSchedules(request.transport, request.from, request.direction, departure)) {
+      print("Yield SuggestedLeg");
+      yield request.copyWith(startTime: d);
+    }
   }
 
-  final api = GrimaudAPI();
-  final schedules = await api.getSchedule(t, Station(from), d);
-  final datetimes = schedules.map((s) => s.time).toList();
-  for (var d in datetimes) {
-    if (d.isAfter(departure)) {
-      print("findSchedules yielding $d");
-      yield d;
+  Stream<DateTime> findSchedules(Transport t, Station from, Direction d, DateTime departure) async* {
+    if (t.kind == TransportKind.WALK) {
+      yield departure;
+      return;
+    }
+
+    //schedulesCache
+
+    final api = GrimaudAPI();
+    final schedules = await api.getSchedule(t, from, d);
+    final datetimes = schedules.map((s) => s.time).toList();
+    for (var d in datetimes) {
+      if (d.isAfter(departure)) {
+        print("findSchedules yielding $d");
+        yield d;
+      }
     }
   }
 }

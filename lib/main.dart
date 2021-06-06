@@ -35,7 +35,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    suggestedTrips = suggestTrip(tripRequest, DateTime.now());
+    final rtt = RTT();
+    suggestedTrips = rtt.suggestTrip(tripRequest, DateTime.now());
     print("suggestedTrips = $suggestedTrips");
   }
 

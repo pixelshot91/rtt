@@ -35,6 +35,18 @@ extension GrimaudDirection on Direction {
   }
 }
 
+extension GrimaudStation on Station {
+  static const nameToSlug = {
+    'Villejuif-Louis Aragon': 'villejuif+louis+aragon',
+    'Villejuif - Louis Aragon': 'villejuif+++louis+aragon',
+  };
+  String get URL {
+    final String? url = nameToSlug[this.name];
+    if (url is String) return url;
+    throw Exception("Unknown station name = ${this.name}");
+  }
+}
+
 class GrimaudAPI extends RTAPI {
   final http.Client client;
   GrimaudAPI() : client = http.Client();
@@ -42,7 +54,7 @@ class GrimaudAPI extends RTAPI {
 
   @override
   Future<List<Schedule>> getSchedule(Transport transport, Station station, Direction direction) async {
-    final http.Response resp = await callApi(['schedules', transport.URL, station.name, direction.URL]);
+    final http.Response resp = await callApi(['schedules', transport.URL, station.URL, direction.URL]);
     if (resp.statusCode != 200) throw ("Http error: Received status code ${resp.statusCode}");
     switch (transport.kind) {
       /*case TransportKind.RER:
