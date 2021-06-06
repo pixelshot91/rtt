@@ -132,7 +132,7 @@ class GanttChart extends StatelessWidget {
   final legendBackgroundColor = Colors.grey.shade400;
 
   final AnimationController? animationController;
-  DateTime? fromDate;
+  DateTime fromDate = DateTime.now();
   DateTime? toDate;
   final List<Trip> trips;
 
@@ -147,41 +147,35 @@ class GanttChart extends StatelessWidget {
     assert(this.trips.isNotEmpty);
 
     trips.forEach((t) {
-      final maybeStart = t.legs.first.startTime;
-      //print("maybeStart = $maybeStart, fromDate = $fromDate");
-      if (fromDate == null || maybeStart!.isBefore(fromDate!)) {
-        fromDate = maybeStart; //!.subtract(Duration(minutes: 10));
-      }
-
       final maybeEnd = t.legs.last.endTime;
       if (maybeEnd != null && (toDate == null || maybeEnd.isAfter(toDate!))) {
         toDate = maybeEnd;
       }
     });
-    viewRange = calculateNumberOfMinutesBetween(fromDate!, toDate!);
+    viewRange = calculateNumberOfMinutesBetween(fromDate, toDate!);
   }
 
   int calculateNumberOfMinutesBetween(DateTime from, DateTime to) => to.difference(from).inMinutes;
 
   int calculateDistanceToLeftBorder(DateTime projectStartedAt) {
-    if (projectStartedAt.compareTo(fromDate!) <= 0) {
+    if (projectStartedAt.compareTo(fromDate) <= 0) {
       return 0;
     } else
-      return calculateNumberOfMinutesBetween(fromDate!, projectStartedAt);
+      return calculateNumberOfMinutesBetween(fromDate, projectStartedAt);
   }
 
   int calculateRemainingWidth(DateTime projectStartedAt, DateTime projectEndedAt) {
     int projectLength = calculateNumberOfMinutesBetween(projectStartedAt, projectEndedAt);
-    if (projectStartedAt.compareTo(fromDate!) >= 0 && projectStartedAt.compareTo(toDate!) <= 0) {
+    if (projectStartedAt.compareTo(fromDate) >= 0 && projectStartedAt.compareTo(toDate!) <= 0) {
       if (projectLength <= viewRange)
         return projectLength;
       else
-        return viewRange - calculateNumberOfMinutesBetween(fromDate!, projectStartedAt);
-    } else if (projectStartedAt.isBefore(fromDate!) && projectEndedAt.isBefore(fromDate!)) {
+        return viewRange - calculateNumberOfMinutesBetween(fromDate, projectStartedAt);
+    } else if (projectStartedAt.isBefore(fromDate) && projectEndedAt.isBefore(fromDate)) {
       return 0;
-    } else if (projectStartedAt.isBefore(fromDate!) && projectEndedAt.isBefore(toDate!)) {
-      return projectLength - calculateNumberOfMinutesBetween(projectStartedAt, fromDate!);
-    } else if (projectStartedAt.isBefore(fromDate!) && projectEndedAt.isAfter(toDate!)) {
+    } else if (projectStartedAt.isBefore(fromDate) && projectEndedAt.isBefore(toDate!)) {
+      return projectLength - calculateNumberOfMinutesBetween(projectStartedAt, fromDate);
+    } else if (projectStartedAt.isBefore(fromDate) && projectEndedAt.isAfter(toDate!)) {
       return viewRange;
     }
     return 0;
@@ -226,7 +220,7 @@ class GanttChart extends StatelessWidget {
   Widget buildHeader(double chartViewWidth, Color color) {
     List<Widget> headerItems = [];
 
-    DateTime tempDate = fromDate!;
+    DateTime tempDate = fromDate;
 
     headerItems.add(Container(
       width: 3 * minuteWidth,
