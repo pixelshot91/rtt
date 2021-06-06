@@ -241,6 +241,7 @@ class GanttChart extends StatelessWidget {
           textAlign: TextAlign.left,
           style: TextStyle(
             fontSize: 10.0,
+            fontWeight: tempDate.minute == 0 ? FontWeight.bold : null,
           ),
         ),
       ));
