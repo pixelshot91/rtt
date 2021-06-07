@@ -26,11 +26,15 @@ void main() {
                   "destination": "Bourg la Reine RER"
               },
               {
-                  "message": "7 mn",
-                  "destination": "Bourg-La-Reine RER"
+                "message": "A l'arret",
+                "destination": "Bourg-La-Reine RER"
               },
               {
-                  "message": "15 mn",
+                "message": "A l'approche",
+                "destination": "Bourg-La-Reine RER"
+              },
+              {
+                  "message": "7 mn",
                   "destination": "Bourg-La-Reine RER"
               }
           ]
@@ -40,6 +44,31 @@ void main() {
           "date": "2021-06-05T17:20:45+02:00",
           "version": 4
       }
+  }''';
+
+  const metroScheduleBody = '''
+  {
+    "result": {
+      "schedules": [
+        {
+          "message": "Train a quai",
+          "destination": "La Courneuve-8-Mai-1945"
+        },
+        {
+          "message": "Train a l'approche",
+          "destination": "La Courneuve-8-Mai-1945"
+        },
+        {
+          "message": "7 mn",
+          "destination": "La Courneuve-8-Mai-1945"
+        }
+      ]
+    },
+    "_metadata": {
+      "call": "GET /schedules/metros/7/opera/R",
+      "date": "2021-06-07T21:54:14+02:00",
+      "version": 4
+    }
   }''';
 
   bool almostEqual(DateTime d1, DateTime d2) => d1.difference(d2).abs() < Duration(seconds: 1);
@@ -118,17 +147,20 @@ void main() {
     expect(m[p2], 'Hello');
   });
 
-  test('Map test String', () {
-    final p1 = 'B';
-    final p2 = 'B';
+  test('Parse Bus schedule response', () {
+    List<DateTime> times = api.parseBusMetroResponse(busScheduleBody);
+    final expectedTimes =
+        [Duration(minutes: 0), Duration(minutes: 1), Duration(minutes: 7)].map((d) => DateTime.now().add(d));
 
-    Map<String, String> m = {p1: 'Hello'};
-    expect(m[p2], 'Hello');
+    expect(times.length, expectedTimes.length);
+    assert(zip([times, expectedTimes]).every((pair) => almostEqual(pair[0], pair[1])));
+    verifyZeroInteractions(client);
   });
 
-  test('Parse BUS schedule response', () {
-    List<DateTime> times = api.parseBusResponse(busScheduleBody);
-    final expectedTimes = [Duration(minutes: 7), Duration(minutes: 15)].map((d) => DateTime.now().add(d));
+  test('Parse Metro schedule response', () {
+    List<DateTime> times = api.parseBusMetroResponse(metroScheduleBody);
+    final expectedTimes =
+        [Duration(minutes: 0), Duration(minutes: 1), Duration(minutes: 7)].map((d) => DateTime.now().add(d));
 
     expect(times.length, expectedTimes.length);
     assert(zip([times, expectedTimes]).every((pair) => almostEqual(pair[0], pair[1])));

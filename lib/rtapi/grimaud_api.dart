@@ -60,11 +60,10 @@ class GrimaudAPI extends RTAPI {
     if (resp.statusCode != 200) throw ("Http error: Received status code ${resp.statusCode}");
     switch (transport.kind) {
       /*case TransportKind.RER:
-        return _parseRERResponse(resp.body);
+        return _parseRERResponse(resp.body);*/
       case TransportKind.METRO:
-        return _parseMETROResponse(resp.body);*/
       case TransportKind.BUS:
-        final List<DateTime> schedules = parseBusResponse(resp.body);
+        final List<DateTime> schedules = parseBusMetroResponse(resp.body);
         return schedules.map((time) => Schedule(transport, station, direction, time)).toList();
       default:
         throw "Can't get schedules for ${transport.kind}";
@@ -72,12 +71,12 @@ class GrimaudAPI extends RTAPI {
   }
 
   @visibleForTesting
-  List<DateTime> parseBusResponse(String body) {
+  List<DateTime> parseBusMetroResponse(String body) {
     final b = jsonDecode(body);
     final rawSchedules = b['result']['schedules'];
     List<DateTime> times = [];
     for (final rawSchedule in rawSchedules) {
-      Duration? d = _parseBusSchedule(rawSchedule['message']);
+      Duration? d = _parseBusMetroSchedule(rawSchedule['message']);
       if (d != null) {
         times.add(DateTime.now().add(d));
       }
@@ -85,9 +84,9 @@ class GrimaudAPI extends RTAPI {
     return times;
   }
 
-  Duration? _parseBusSchedule(String msg) {
-    if (msg == "A l'arret") return Duration(minutes: 0);
-    if (msg == "A l'approche") return Duration(minutes: 1);
+  Duration? _parseBusMetroSchedule(String msg) {
+    if (msg == "A l'arret" || msg == "Train a quai") return Duration(minutes: 0);
+    if (msg == "A l'approche" || msg == "Train a l'approche") return Duration(minutes: 1);
 
     Match? m = RegExp(r'^(\d+) mn$').matchAsPrefix(msg);
     if (m is Match) return Duration(minutes: int.parse(m[1]!));
