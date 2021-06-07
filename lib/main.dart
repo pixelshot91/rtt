@@ -31,7 +31,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late Stream<Trip> suggestedTrips;
+  late Stream<SuggestedTrip> suggestedTrips;
 
   @override
   void initState() {

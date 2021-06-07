@@ -63,7 +63,7 @@ extension UI on Transport {
 const legBarHeight = 25.0;
 
 class GanttChartScreen extends StatefulWidget {
-  final Stream<Trip> trips;
+  final Stream<SuggestedTrip> trips;
 
   GanttChartScreen(this.trips);
 
@@ -75,8 +75,8 @@ class GanttChartScreen extends StatefulWidget {
 
 class GanttChartScreenState extends State<GanttChartScreen> with TickerProviderStateMixin {
   AnimationController? animationController;
-  final Stream<Trip> tripsStream;
-  List<Trip> trips = [];
+  final Stream<SuggestedTrip> tripsStream;
+  List<SuggestedTrip> trips = [];
   bool streamDone = false;
 
   GanttChartScreenState(this.tripsStream);
@@ -132,30 +132,19 @@ class GanttChart extends StatelessWidget {
   final legendBackgroundColor = Colors.grey.shade400;
 
   final AnimationController? animationController;
-  DateTime fromDate = DateTime.now();
-  DateTime? toDate;
-  final List<Trip> trips;
+  final DateTime fromDate = DateTime.now();
+  final DateTime toDate;
+  final List<SuggestedTrip> trips;
 
-  late int viewRange;
   double minuteWidth = 15;
   Animation<double>? width;
 
-  GanttChart({
-    this.animationController,
-    required this.trips,
-  }) {
-    assert(this.trips.isNotEmpty);
+  GanttChart({this.animationController, required this.trips})
+      : toDate = trips.fold(trips.first.legs.last.endTime,
+            (oldMax, t) => t.legs.last.endTime.isAfter(oldMax) ? t.legs.last.endTime : oldMax);
 
-    trips.forEach((t) {
-      final maybeEnd = t.legs.last.endTime;
-      if (maybeEnd != null && (toDate == null || maybeEnd.isAfter(toDate!))) {
-        toDate = maybeEnd;
-      }
-    });
-    viewRange = calculateNumberOfMinutesBetween(fromDate, toDate!);
-  }
-
-  int calculateNumberOfMinutesBetween(DateTime from, DateTime to) => to.difference(from).inMinutes;
+  int get viewRange => toDate.difference(fromDate).inMinutes;
+  static int calculateNumberOfMinutesBetween(DateTime from, DateTime to) => to.difference(from).inMinutes;
 
   int calculateDistanceToLeftBorder(DateTime projectStartedAt) {
     if (projectStartedAt.compareTo(fromDate) <= 0) {
@@ -166,26 +155,26 @@ class GanttChart extends StatelessWidget {
 
   int calculateRemainingWidth(DateTime projectStartedAt, DateTime projectEndedAt) {
     int projectLength = calculateNumberOfMinutesBetween(projectStartedAt, projectEndedAt);
-    if (projectStartedAt.compareTo(fromDate) >= 0 && projectStartedAt.compareTo(toDate!) <= 0) {
+    if (projectStartedAt.compareTo(fromDate) >= 0 && projectStartedAt.compareTo(toDate) <= 0) {
       if (projectLength <= viewRange)
         return projectLength;
       else
         return viewRange - calculateNumberOfMinutesBetween(fromDate, projectStartedAt);
     } else if (projectStartedAt.isBefore(fromDate) && projectEndedAt.isBefore(fromDate)) {
       return 0;
-    } else if (projectStartedAt.isBefore(fromDate) && projectEndedAt.isBefore(toDate!)) {
+    } else if (projectStartedAt.isBefore(fromDate) && projectEndedAt.isBefore(toDate)) {
       return projectLength - calculateNumberOfMinutesBetween(projectStartedAt, fromDate);
-    } else if (projectStartedAt.isBefore(fromDate) && projectEndedAt.isAfter(toDate!)) {
+    } else if (projectStartedAt.isBefore(fromDate) && projectEndedAt.isAfter(toDate)) {
       return viewRange;
     }
     return 0;
   }
 
-  List<Widget> buildChartBars(List<Leg> legs, double chartViewWidth) {
+  List<Widget> buildChartBars(List<SuggestedLeg> legs, double chartViewWidth) {
     List<Widget> chartBars = [];
 
     for (int i = 0; i < legs.length; i++) {
-      var remainingWidth = calculateRemainingWidth(legs[i].startTime!, legs[i].endTime!);
+      var remainingWidth = calculateRemainingWidth(legs[i].startTime, legs[i].endTime);
       if (remainingWidth > 0) {
         chartBars.add(Container(
           decoration: BoxDecoration(
@@ -194,7 +183,7 @@ class GanttChart extends StatelessWidget {
           ),
           height: legBarHeight,
           width: remainingWidth * minuteWidth,
-          margin: EdgeInsets.only(left: calculateDistanceToLeftBorder(legs[i].startTime!) * minuteWidth),
+          margin: EdgeInsets.only(left: calculateDistanceToLeftBorder(legs[i].startTime) * minuteWidth),
           alignment: Alignment.centerLeft,
           child: Row(
             children: [
@@ -269,7 +258,7 @@ class GanttChart extends StatelessWidget {
     );
   }
 
-  Widget buildChartForAllTrips(List<Trip> trips, double chartViewWidth) {
+  Widget buildChartForAllTrips(List<SuggestedTrip> trips, double chartViewWidth) {
     var tripsBar = trips.map((t) => buildChartForEachTrip(t, chartViewWidth)).toList();
     return Container(
       //height: trips.length * 29.0 + 25.0 + 4.0,
@@ -293,7 +282,7 @@ class GanttChart extends StatelessWidget {
     );
   }
 
-  Widget buildChartForEachTrip(Trip trip, double chartViewWidth) {
+  Widget buildChartForEachTrip(SuggestedTrip trip, double chartViewWidth) {
     var chartBars = buildChartBars(trip.legs, chartViewWidth);
     return Row(
       children: <Widget>[
@@ -303,7 +292,7 @@ class GanttChart extends StatelessWidget {
           color: legendBackgroundColor,
           child: Center(
             child: Text(
-              trip.duration!.inMinutes.toString() + " min",
+              trip.duration.inMinutes.toString() + " min",
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
