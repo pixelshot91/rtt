@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:rtt/rtapi/api.dart';
 import 'package:rtt/rtt.dart';
+import 'package:rtt/tools/datetime.dart';
 
 extension GrimaudTransportKind on TransportKind {
   String get URL {
@@ -59,8 +60,8 @@ class GrimaudAPI extends RTAPI {
     final http.Response resp = await callApi(['schedules', transport.URL, station.URL, direction.URL]);
     if (resp.statusCode != 200) throw ("Http error: Received status code ${resp.statusCode}");
     switch (transport.kind) {
-      /*case TransportKind.RER:
-        return _parseRERResponse(resp.body);*/
+      case TransportKind.RER:
+        return parseRERResponse(resp.body).map((time) => Schedule(transport, station, direction, time)).toList();
       case TransportKind.METRO:
       case TransportKind.BUS:
         final List<DateTime> schedules = parseBusMetroResponse(resp.body);
@@ -68,6 +69,29 @@ class GrimaudAPI extends RTAPI {
       default:
         throw "Can't get schedules for ${transport.kind}";
     }
+  }
+
+  @visibleForTesting
+  List<DateTime> parseRERResponse(String body) {
+    final b = jsonDecode(body);
+    final rawSchedules = b['result']['schedules'];
+    List<DateTime> times = [];
+    for (final rawSchedule in rawSchedules) {
+      DateTime? d = _parseRERSchedule(rawSchedule['message']);
+      if (d != null) {
+        times.add(d);
+      }
+    }
+    return times;
+  }
+
+  DateTime? _parseRERSchedule(String msg) {
+    if (msg.startsWith("Train à quai")) return DateTime.now();
+    if (msg.startsWith("A l'approche")) return DateTime.now().add(Duration(minutes: 1));
+
+    Match? m = RegExp(r'^(\d+):(\d+) ').matchAsPrefix(msg);
+    if (m is Match) return todayWithTime(int.parse(m[1]!), int.parse(m[2]!));
+    print("Can't parse $msg");
   }
 
   @visibleForTesting

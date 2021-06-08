@@ -8,6 +8,7 @@ import 'package:quiver/iterables.dart';
 import 'package:rtt/rtapi/api.dart';
 import 'package:rtt/rtapi/grimaud_api.dart';
 import 'package:rtt/rtt.dart';
+import 'package:rtt/tools/datetime.dart';
 
 import 'grimaud_api_test.mocks.dart';
 
@@ -70,6 +71,35 @@ void main() {
       "version": 4
     }
   }''';
+
+  const RERScheduleBody = '''
+  {
+    "result": {
+      "schedules": [
+        {
+          "code": "EPOU",
+          "message": "Train à quai V.2",
+          "destination": "Aeroport Charles de Gaulle 2 TGV"
+        },
+        {
+          "code": "GSZZ",
+          "message": "A l'approche Voie 2B",
+          "destination": "Aulnay-sous-Bois"
+        },
+        {
+          "code": "ERBE",
+          "message": "17:47 Voie 2",
+          "destination": "Aeroport Charles de Gaulle 2 TGV"
+        }
+      ]
+    },
+    "_metadata": {
+      "call": "GET /schedules/rers/b/bourg%2Bla%2Breine/A%2BR",
+      "date": "2021-05-16T17:41:03+02:00",
+      "version": 4
+    }
+  }
+  ''';
 
   bool almostEqual(DateTime d1, DateTime d2) => d1.difference(d2).abs() < Duration(seconds: 1);
 
@@ -161,6 +191,16 @@ void main() {
     List<DateTime> times = api.parseBusMetroResponse(metroScheduleBody);
     final expectedTimes =
         [Duration(minutes: 0), Duration(minutes: 1), Duration(minutes: 7)].map((d) => DateTime.now().add(d));
+
+    expect(times.length, expectedTimes.length);
+    assert(zip([times, expectedTimes]).every((pair) => almostEqual(pair[0], pair[1])));
+    verifyZeroInteractions(client);
+  });
+
+  test('Parse RER schedule response', () {
+    List<DateTime> times = api.parseRERResponse(RERScheduleBody);
+    final expectedTimes = [Duration(minutes: 0), Duration(minutes: 1)].map((d) => DateTime.now().add(d)).toList();
+    expectedTimes.add(todayWithTime(17, 47));
 
     expect(times.length, expectedTimes.length);
     assert(zip([times, expectedTimes]).every((pair) => almostEqual(pair[0], pair[1])));
