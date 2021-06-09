@@ -82,6 +82,11 @@ void main() {
           "destination": "Aeroport Charles de Gaulle 2 TGV"
         },
         {
+          "code": "LEVI",
+          "message": "Train Ã  quai",
+          "destination": "Orsay-Ville"
+        },
+        {
           "code": "GSZZ",
           "message": "A l'approche Voie 2B",
           "destination": "Aulnay-sous-Bois"
@@ -89,6 +94,11 @@ void main() {
         {
           "code": "ERBE",
           "message": "17:47 Voie 2",
+          "destination": "Aeroport Charles de Gaulle 2 TGV"
+        },
+        {
+          "code": "ERTE",
+          "message": "17:49",
           "destination": "Aeroport Charles de Gaulle 2 TGV"
         }
       ]
@@ -199,8 +209,10 @@ void main() {
 
   test('Parse RER schedule response', () {
     List<DateTime> times = api.parseRERResponse(RERScheduleBody);
-    final expectedTimes = [Duration(minutes: 0), Duration(minutes: 1)].map((d) => DateTime.now().add(d)).toList();
+    final expectedTimes =
+        [Duration(minutes: 0), Duration(minutes: 0), Duration(minutes: 1)].map((d) => DateTime.now().add(d)).toList();
     expectedTimes.add(todayWithTime(17, 47));
+    expectedTimes.add(todayWithTime(17, 49));
 
     expect(times.length, expectedTimes.length);
     assert(zip([times, expectedTimes]).every((pair) => almostEqual(pair[0], pair[1])));

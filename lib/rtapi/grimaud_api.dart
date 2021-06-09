@@ -96,11 +96,14 @@ class GrimaudAPI extends RTAPI {
   }
 
   DateTime? _parseRERSchedule(String msg) {
-    if (msg.startsWith("Train à quai")) return DateTime.now();
-    if (msg.startsWith("A l'approche")) return DateTime.now().add(Duration(minutes: 1));
+    if (msg.startsWith("Train à quai") || msg.startsWith('Train Ã  quai')) return DateTime.now();
+    if (msg.startsWith("A l'approche") || msg.startsWith("Train à l'approche") || msg.startsWith("Train Ã  l'approche"))
+      return DateTime.now().add(Duration(minutes: 1));
 
-    Match? m = RegExp(r'^(\d+):(\d+) ').matchAsPrefix(msg);
+    Match? m = RegExp(r'^(\d+):(\d+)').matchAsPrefix(msg);
     if (m is Match) return todayWithTime(int.parse(m[1]!), int.parse(m[2]!));
+
+    if (msg.startsWith('Train sans arrêt') || msg.startsWith('Sans voyageurs')) return null;
     print("Can't parse $msg");
   }
 
