@@ -85,12 +85,13 @@ class LegRequest {
 }
 
 class SuggestedLeg extends LegRequest {
-  DateTime startTime;
+  Schedule schedule;
 
-  SuggestedLeg(LegRequest l, {required this.startTime})
+  SuggestedLeg(LegRequest l, {required this.schedule})
       : super(l.transport, l.from, l.to, l.direction, duration: l.duration);
 
-  DateTime get endTime => startTime.add(duration);
+  DateTime get startTime => schedule.time;
+  DateTime get endTime => schedule.time.add(duration);
 
   @override
   String toString() {
@@ -112,7 +113,7 @@ final trip_286_antony = TripRequest(legs: [
   LegRequest(Transport(TransportKind.BUS, "286"), Station('Les Bons Enfants'), Station('Antony RER'), Direction.A,
       duration: Duration(minutes: 30)),
   LegRequest(Transport(TransportKind.RER, "B"), Station('Antony RER'), Station('Massy-Verrieres'), Direction.B,
-      duration: Duration(minutes: 7)),
+      duration: Duration(minutes: 5)),
 ]);
 
 /*final trip_m7_rera = TripRequest(legs: [
@@ -141,8 +142,9 @@ class Schedule {
   Station station;
   Direction direction;
   DateTime time;
+  String? mission;
 
-  Schedule(this.transport, this.station, this.direction, this.time);
+  Schedule(this.transport, this.station, this.direction, this.time, [this.mission]);
 
   @override
   String toString() => 'Schedule(transport: $transport, station: $station, direction: $direction, time: $time)';
@@ -187,22 +189,23 @@ class RTT {
   }
 
   Stream<SuggestedLeg> suggestLegs(LegRequest request, DateTime departure) async* {
-    await for (DateTime d in findSchedules(request.transport, request.from, request.direction, departure)) {
-      yield SuggestedLeg(request, startTime: d);
+    await for (Schedule s in findSchedules(request.transport, request.from, request.direction, departure)) {
+      yield SuggestedLeg(request, schedule: s);
     }
   }
 
-  Stream<DateTime> findSchedules(Transport t, Station from, Direction d, DateTime departure) async* {
+  Stream<Schedule> findSchedules(Transport t, Station from, Direction d, DateTime departure) async* {
     if (t.kind == TransportKind.WALK) {
-      yield departure;
+      // TODO: Make Schedule more adapted to walking
+      yield Schedule(Transport(TransportKind.WALK, ""), from, d, departure);
       return;
     }
 
     final schedules = await api.getSchedule(t, from, d);
-    final datetimes = schedules.map((s) => s.time).toList();
-    for (var d in datetimes) {
-      if (d.isAfter(departure)) {
-        yield d;
+    for (var s in schedules) {
+      // TODO: Ignore if schedule.mission doesn't go to Station to
+      if (s.time.isAfter(departure)) {
+        yield s;
       }
     }
   }

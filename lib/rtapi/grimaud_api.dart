@@ -94,6 +94,7 @@ class GrimaudAPI extends RTAPI {
 
     switch (transport.kind) {
       case TransportKind.RER:
+        return Schedule(transport, station, direction, time, rawSchedule['code']);
       case TransportKind.METRO:
       case TransportKind.BUS:
         return Schedule(transport, station, direction, time);

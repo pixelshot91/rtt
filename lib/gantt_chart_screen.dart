@@ -138,7 +138,7 @@ class GanttChart extends StatelessWidget {
   final DateTime toDate;
   final List<SuggestedTrip> trips;
 
-  double minuteWidth = 15;
+  double minuteWidth = 20;
   Animation<double>? width;
 
   GanttChart({this.animationController, required this.trips})
@@ -191,7 +191,7 @@ class GanttChart extends StatelessWidget {
             children: [
               legs[i].transport.picto,
               Text(
-                ' ' + legs[i].transport.name,
+                ' ' + legs[i].transport.name + ' ' + (legs[i].schedule.mission ?? ""),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(fontSize: 10.0),
