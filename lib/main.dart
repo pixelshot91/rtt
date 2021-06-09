@@ -37,7 +37,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     final rtt = RTT(GrimaudAPI());
-    suggestedTrips = rtt.suggestTrip(tripRequest, DateTime.now());
+    suggestedTrips = rtt.suggestTrips(tripsRequest, DateTime.now());
     print("suggestedTrips = $suggestedTrips");
   }
 

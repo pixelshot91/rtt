@@ -38,8 +38,18 @@ extension GrimaudDirection on Direction {
 
 extension GrimaudStation on Station {
   static const nameToSlug = {
+    // M7
     'Villejuif-Louis Aragon': 'villejuif+louis+aragon',
+    // B172
     'Villejuif - Louis Aragon': 'villejuif+++louis+aragon',
+    'Bourg-La-Reine RER': 'bourg+la+reine+rer',
+    // B286
+    'Les Bons Enfants': 'les+bons+enfants',
+    'Antony RER': 'antony+rer',
+    // RERB
+    'Bourg-la-Reine': 'bourg+la+reine',
+    'Antony': 'antony',
+    'Massy-Verrieres': 'massy+verrieres',
   };
   String get URL {
     final String? url = nameToSlug[this.name];

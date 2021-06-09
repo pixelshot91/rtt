@@ -24,6 +24,7 @@ class RATPColors {
   static final Bleu_outremer = myColor.fromRGB(60, 145, 220);
   static final Vert_fonce = myColor.fromRGB(0, 100, 60);
   static final Rose = myColor.fromRGB(255, 130, 180);
+  static final Lilas = myColor.fromRGB(210, 130, 190);
 }
 
 class LineInfo {
@@ -39,6 +40,7 @@ final LineInfos = {
   Tuple2(TransportKind.RER, "B"): LineInfo(RATPColors.Bleu_outremer, "RER B"),
   Tuple2(TransportKind.METRO, "7"): LineInfo(RATPColors.Rose, "M7"),
   Tuple2(TransportKind.BUS, "172"): LineInfo(RATPColors.Vert_fonce, "172"),
+  Tuple2(TransportKind.BUS, "286"): LineInfo(RATPColors.Lilas, "286"),
 };
 
 extension UI on Transport {

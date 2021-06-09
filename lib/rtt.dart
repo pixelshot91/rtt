@@ -101,17 +101,27 @@ class SuggestedLeg extends LegRequest {
   }
 }
 
-final tripRequest = TripRequest(legs: [
-  LegRequest(Transport(TransportKind.BUS, "172"), Station('Villejuif - Louis Aragon'), Station("Opera"), Direction.A,
+final trip_172_rerb = TripRequest(legs: [
+  LegRequest(Transport(TransportKind.BUS, "172"), Station('Villejuif - Louis Aragon'), Station("Opera"), Direction.B,
+      duration: Duration(minutes: 20)),
+  LegRequest(Transport(TransportKind.RER, "B"), Station('Bourg-la-Reine'), Station('Massy-Verrieres'), Direction.B,
       duration: Duration(minutes: 10)),
-  LegRequest(Transport(TransportKind.METRO, "7"), Station('Villejuif-Louis Aragon'), Station("Opera"), Direction.B,
-      duration: Duration(minutes: 15)),
 ]);
-/*final tripRequest = Trip(legs: [
-  Leg(Transport(TransportKind.METRO, "7"), "VJ", "Opera", Direction.A, duration: Duration(minutes: 25)),
-  Leg(Transport(TransportKind.WALK, ""), "Opera", "Auber", Direction.A, duration: Duration(minutes: 5)),
-  Leg(Transport(TransportKind.RER, "A"), "Auber", "Rueil", Direction.A, duration: Duration(minutes: 20)),
+
+final trip_286_antony = TripRequest(legs: [
+  LegRequest(Transport(TransportKind.BUS, "286"), Station('Les Bons Enfants'), Station('Antony RER'), Direction.A,
+      duration: Duration(minutes: 30)),
+  LegRequest(Transport(TransportKind.RER, "B"), Station('Antony RER'), Station('Massy-Verrieres'), Direction.B,
+      duration: Duration(minutes: 7)),
+]);
+
+/*final trip_m7_rera = TripRequest(legs: [
+  LegRequest(Transport(TransportKind.METRO, "7"), Station('Villejuif-Louis Aragon'), Station('Opera'), Direction.A, duration: Duration(minutes: 25)),
+  LegRequest(Transport(TransportKind.WALK, ""), "Opera", "Auber", Direction.A, duration: Duration(minutes: 5)),
+  LegRequest(Transport(TransportKind.RER, "A"), "Auber", "Rueil", Direction.A, duration: Duration(minutes: 20)),
 ]);*/
+
+final tripsRequest = [trip_172_rerb, trip_286_antony];
 
 class Station {
   String name;
@@ -143,6 +153,14 @@ class RTT {
   final margin;
 
   RTT(this.api, {this.margin = const Duration(minutes: 31)});
+
+  Stream<SuggestedTrip> suggestTrips(List<TripRequest> requests, DateTime departure) async* {
+    for (final request in requests) {
+      await for (final suggestedTrip in suggestTrip(request, departure)) {
+        yield suggestedTrip;
+      }
+    }
+  }
 
   Stream<SuggestedTrip> suggestTrip(TripRequest request, DateTime departure) async* {
     print("rest = $request");
