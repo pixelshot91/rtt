@@ -190,11 +190,22 @@ class GanttChart extends StatelessWidget {
           child: Row(
             children: [
               legs[i].transport.picto,
-              Text(
-                ' ' + legs[i].transport.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 10.0),
+              Expanded(
+                child: Text(
+                  ' ' + legs[i].from.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.fade,
+                  style: TextStyle(fontSize: 10.0),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  ' ' + DateFormat('Hm').format(legs[i].endTime),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 10.0),
+                  textAlign: TextAlign.right,
+                ),
               ),
             ],
           ),
