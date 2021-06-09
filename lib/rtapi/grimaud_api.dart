@@ -65,68 +65,72 @@ class GrimaudAPI extends RTAPI {
         super(maxCacheLife: maxCacheLife);
   GrimaudAPI.withClient(this.client, {Duration? maxCacheLife}) : super(maxCacheLife: maxCacheLife);
 
+  @visibleForTesting
   @override
   Future<List<Schedule>> getScheduleNoCache(Transport transport, Station station, Direction direction) async {
     final http.Response resp = await callApi(['schedules', transport.URL, station.URL, direction.URL]);
     if (resp.statusCode != 200) throw ("Http error: Received status code ${resp.statusCode}");
+
+    return parseSchedulesFromBody(resp.body, transport, station, direction);
+  }
+
+  List<Schedule> parseSchedulesFromBody(String body, Transport transport, Station station, Direction direction) {
+    final b = jsonDecode(body);
+    final rawSchedules = b['result']['schedules'];
+
+    List<Schedule> schedules = [];
+    for (final rawSchedule in rawSchedules) {
+      Schedule? s = parseScheduleFromRawMessage(rawSchedule, transport, station, direction);
+      if (s != null) schedules.add(s);
+    }
+    return schedules;
+  }
+
+  @visibleForTesting
+  Schedule? parseScheduleFromRawMessage(rawSchedule, Transport transport, Station station, Direction direction) {
+    DateTime? time = parseTimeMsg(rawSchedule['message']);
+
+    if (time == null) return null;
+
     switch (transport.kind) {
       case TransportKind.RER:
-        return parseRERResponse(resp.body).map((time) => Schedule(transport, station, direction, time)).toList();
       case TransportKind.METRO:
       case TransportKind.BUS:
-        final List<DateTime> schedules = parseBusMetroResponse(resp.body);
-        return schedules.map((time) => Schedule(transport, station, direction, time)).toList();
-      default:
-        throw "Can't get schedules for ${transport.kind}";
+        return Schedule(transport, station, direction, time);
     }
   }
 
   @visibleForTesting
-  List<DateTime> parseRERResponse(String body) {
-    final b = jsonDecode(body);
-    final rawSchedules = b['result']['schedules'];
-    List<DateTime> times = [];
-    for (final rawSchedule in rawSchedules) {
-      DateTime? d = _parseRERSchedule(rawSchedule['message']);
-      if (d != null) {
-        times.add(d);
-      }
+  DateTime? parseTimeMsg(String msg) {
+    if (msg.startsWith("Train à quai") ||
+        msg.startsWith('Train Ã  quai') ||
+        msg == "A l'arret" ||
+        msg == "Train a quai" ||
+        msg.startsWith('Voie ')) return DateTime.now();
+
+    if (RegExp(r"l'approche").hasMatch(msg)) return DateTime.now().add(Duration(minutes: 1));
+
+    // Relative time
+    {
+      Match? m = RegExp(r'^(\d+) mn$').matchAsPrefix(msg);
+      if (m is Match) return DateTime.now().add(Duration(minutes: int.parse(m[1]!)));
     }
-    return times;
-  }
 
-  DateTime? _parseRERSchedule(String msg) {
-    if (msg.startsWith("Train à quai") || msg.startsWith('Train Ã  quai')) return DateTime.now();
-    if (msg.startsWith("A l'approche") || msg.startsWith("Train à l'approche") || msg.startsWith("Train Ã  l'approche"))
-      return DateTime.now().add(Duration(minutes: 1));
+    // Absolute time
+    // TODO: handle time after midnight
+    {
+      Match? m = RegExp(r'^(\d+):(\d+)').matchAsPrefix(msg);
+      if (m is Match) return todayWithTime(int.parse(m[1]!), int.parse(m[2]!));
+    }
 
-    Match? m = RegExp(r'^(\d+):(\d+)').matchAsPrefix(msg);
-    if (m is Match) return todayWithTime(int.parse(m[1]!), int.parse(m[2]!));
+    // Know message that shoud be ignored
+    if (RegExp(r'^Train sans arr.*t').hasMatch(msg) ||
+        RegExp(r'^Sans arr.*t').hasMatch(msg) ||
+        msg.startsWith('Sans voyageurs') ||
+        msg == 'PAS DE SERVICE' ||
+        msg == '..................') return null;
 
-    if (msg.startsWith('Train sans arrêt') || msg.startsWith('Sans voyageurs')) return null;
     print("Can't parse $msg");
-  }
-
-  @visibleForTesting
-  List<DateTime> parseBusMetroResponse(String body) {
-    final b = jsonDecode(body);
-    final rawSchedules = b['result']['schedules'];
-    List<DateTime> times = [];
-    for (final rawSchedule in rawSchedules) {
-      Duration? d = _parseBusMetroSchedule(rawSchedule['message']);
-      if (d != null) {
-        times.add(DateTime.now().add(d));
-      }
-    }
-    return times;
-  }
-
-  Duration? _parseBusMetroSchedule(String msg) {
-    if (msg == "A l'arret" || msg == "Train a quai") return Duration(minutes: 0);
-    if (msg == "A l'approche" || msg == "Train a l'approche") return Duration(minutes: 1);
-
-    Match? m = RegExp(r'^(\d+) mn$').matchAsPrefix(msg);
-    if (m is Match) return Duration(minutes: int.parse(m[1]!));
   }
 
   @visibleForTesting

@@ -92,6 +92,11 @@ void main() {
           "destination": "Aulnay-sous-Bois"
         },
         {
+          "code": "WKWI",
+          "message": "Train sans arrÃªt",
+          "destination": "Robinson. Saint-RÃ©my-lÃ¨s-Chevreuse."
+        },
+        {
           "code": "ERBE",
           "message": "17:47 Voie 2",
           "destination": "Aeroport Charles de Gaulle 2 TGV"
@@ -112,6 +117,12 @@ void main() {
   ''';
 
   bool almostEqual(DateTime d1, DateTime d2) => d1.difference(d2).abs() < Duration(seconds: 1);
+
+  bool almostEqualSchedule(Schedule s1, Schedule s2) =>
+      s1.transport == s2.transport &&
+      s1.station == s2.station &&
+      s1.direction == s2.direction &&
+      almostEqual(s1.time, s2.time);
 
   late http.Client client;
   late GrimaudAPI api;
@@ -188,34 +199,52 @@ void main() {
   });
 
   test('Parse Bus schedule response', () {
-    List<DateTime> times = api.parseBusMetroResponse(busScheduleBody);
+    Transport t = Transport(TransportKind.BUS, '172');
+    final s = Station('Villejuif - Louis Aragon');
+    final d = Direction.B;
+
+    List<Schedule> schedules = api.parseSchedulesFromBody(busScheduleBody, t, s, d);
+
     final expectedTimes =
         [Duration(minutes: 0), Duration(minutes: 1), Duration(minutes: 7)].map((d) => DateTime.now().add(d));
+    final expectedSchedules = expectedTimes.map((time) => Schedule(t, s, d, time)).toList();
 
-    expect(times.length, expectedTimes.length);
-    assert(zip([times, expectedTimes]).every((pair) => almostEqual(pair[0], pair[1])));
+    expect(schedules.length, expectedSchedules.length);
+    assert(zip([schedules, expectedSchedules]).every((pair) => almostEqualSchedule(pair[0], pair[1])));
     verifyZeroInteractions(client);
   });
 
   test('Parse Metro schedule response', () {
-    List<DateTime> times = api.parseBusMetroResponse(metroScheduleBody);
+    Transport t = Transport(TransportKind.METRO, '7');
+    final s = Station('Villejuif - Louis Aragon');
+    final d = Direction.B;
+
+    List<Schedule> schedules = api.parseSchedulesFromBody(metroScheduleBody, t, s, d);
     final expectedTimes =
         [Duration(minutes: 0), Duration(minutes: 1), Duration(minutes: 7)].map((d) => DateTime.now().add(d));
+    final expectedSchedules = expectedTimes.map((time) => Schedule(t, s, d, time)).toList();
 
-    expect(times.length, expectedTimes.length);
-    assert(zip([times, expectedTimes]).every((pair) => almostEqual(pair[0], pair[1])));
+    expect(schedules.length, expectedSchedules.length);
+    assert(zip([schedules, expectedSchedules]).every((pair) => almostEqualSchedule(pair[0], pair[1])));
     verifyZeroInteractions(client);
   });
 
   test('Parse RER schedule response', () {
-    List<DateTime> times = api.parseRERResponse(RERScheduleBody);
+    Transport t = Transport(TransportKind.RER, 'B');
+    final s = Station('Bourg la Reine');
+    final d = Direction.B;
+
+    List<Schedule> schedules = api.parseSchedulesFromBody(RERScheduleBody, t, s, d);
+
     final expectedTimes =
         [Duration(minutes: 0), Duration(minutes: 0), Duration(minutes: 1)].map((d) => DateTime.now().add(d)).toList();
     expectedTimes.add(todayWithTime(17, 47));
     expectedTimes.add(todayWithTime(17, 49));
 
-    expect(times.length, expectedTimes.length);
-    assert(zip([times, expectedTimes]).every((pair) => almostEqual(pair[0], pair[1])));
+    final expectedSchedules = expectedTimes.map((time) => Schedule(t, s, d, time)).toList();
+
+    expect(schedules.length, expectedSchedules.length);
+    assert(zip([schedules, expectedSchedules]).every((pair) => almostEqualSchedule(pair[0], pair[1])));
     verifyZeroInteractions(client);
   });
 }
