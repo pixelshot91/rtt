@@ -163,12 +163,9 @@ class RTT {
   }
 
   Stream<SuggestedTrip> suggestTrip(TripRequest request, DateTime departure) async* {
-    print("rest = $request");
     List<LegRequest> rest = request.legs.length > 1 ? request.legs.sublist(1) : [];
     DateTime? best;
-    print("arg = ${request.legs.first}");
     await for (SuggestedLeg first in suggestLegs(request.legs.first, departure)) {
-      print("Leg = $first");
       if (best != null && first.endTime.isAfter(best.add(margin))) {
         break;
       }
@@ -177,28 +174,20 @@ class RTT {
         continue;
       }
       var suggestRests = suggestTrip(TripRequest(legs: rest), first.endTime);
-      print("For suggestRest");
       await for (SuggestedTrip suggestRest in suggestRests) {
-        print("For iter suggestRest");
         final endTime = suggestRest.legs.last.endTime;
         if (best == null || best.isAfter(endTime)) {
           best = endTime;
         } else if (endTime.isAfter(best.add(margin))) {
           break;
         }
-        print("Yield Trip with first and tail");
         yield SuggestedTrip(legs: [first, ...suggestRest.legs]);
       }
     }
   }
 
   Stream<SuggestedLeg> suggestLegs(LegRequest request, DateTime departure) async* {
-    /*findSchedules(request.transport, request.locFrom, departure).map((t) =>
-    request.copyWith(startTime: t)
-  );*/
-    print("SuggestedLegs start");
     await for (DateTime d in findSchedules(request.transport, request.from, request.direction, departure)) {
-      print("Yield SuggestedLeg");
       yield SuggestedLeg(request, startTime: d);
     }
   }
@@ -213,7 +202,6 @@ class RTT {
     final datetimes = schedules.map((s) => s.time).toList();
     for (var d in datetimes) {
       if (d.isAfter(departure)) {
-        print("findSchedules yielding $d");
         yield d;
       }
     }
