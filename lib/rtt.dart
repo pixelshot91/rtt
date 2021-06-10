@@ -102,11 +102,15 @@ class SuggestedLeg extends LegRequest {
   }
 }
 
+final walk = (duration) =>
+    LegRequest(Transport(TransportKind.WALK, ""), Station(''), Station(''), Direction.B, duration: duration);
+
 final trip_172_rerb = TripRequest(legs: [
   LegRequest(Transport(TransportKind.BUS, "172"), Station('Villejuif - Louis Aragon'), Station("Opera"), Direction.B,
       duration: Duration(minutes: 20)),
   LegRequest(Transport(TransportKind.RER, "B"), Station('Bourg-la-Reine'), Station('Massy-Verrieres'), Direction.B,
       duration: Duration(minutes: 10)),
+  walk(Duration(minutes: 10)),
 ]);
 
 final trip_286_antony = TripRequest(legs: [
@@ -114,6 +118,7 @@ final trip_286_antony = TripRequest(legs: [
       duration: Duration(minutes: 30)),
   LegRequest(Transport(TransportKind.RER, "B"), Station('Antony RER'), Station('Massy-Verrieres'), Direction.B,
       duration: Duration(minutes: 5)),
+  walk(Duration(minutes: 10)),
 ]);
 
 /*final trip_m7_rera = TripRequest(legs: [
