@@ -108,7 +108,7 @@ final walk = (duration) =>
 final trip_172_rerb = TripRequest(legs: [
   LegRequest(Transport(TransportKind.BUS, "172"), Station('Villejuif - Louis Aragon'), Station("Opera"), Direction.B,
       duration: Duration(minutes: 20)),
-  LegRequest(Transport(TransportKind.RER, "B"), Station('Bourg-la-Reine'), Station('Massy-Verrieres'), Direction.B,
+  LegRequest(Transport(TransportKind.RER, "B"), Station('Bourg-la-Reine'), Station('Massy Verrieres'), Direction.B,
       duration: Duration(minutes: 10)),
   walk(Duration(minutes: 10)),
 ]);
@@ -116,7 +116,7 @@ final trip_172_rerb = TripRequest(legs: [
 final trip_286_antony = TripRequest(legs: [
   LegRequest(Transport(TransportKind.BUS, "286"), Station('Les Bons Enfants'), Station('Antony RER'), Direction.A,
       duration: Duration(minutes: 30)),
-  LegRequest(Transport(TransportKind.RER, "B"), Station('Antony RER'), Station('Massy-Verrieres'), Direction.B,
+  LegRequest(Transport(TransportKind.RER, "B"), Station('Antony RER'), Station('Massy Verrieres'), Direction.B,
       duration: Duration(minutes: 5)),
   walk(Duration(minutes: 10)),
 ]);
@@ -194,12 +194,12 @@ class RTT {
   }
 
   Stream<SuggestedLeg> suggestLegs(LegRequest request, DateTime departure) async* {
-    await for (Schedule s in findSchedules(request.transport, request.from, request.direction, departure)) {
+    await for (Schedule s in findSchedules(request.transport, request.from, request.to, request.direction, departure)) {
       yield SuggestedLeg(request, schedule: s);
     }
   }
 
-  Stream<Schedule> findSchedules(Transport t, Station from, Direction d, DateTime departure) async* {
+  Stream<Schedule> findSchedules(Transport t, Station from, Station to, Direction d, DateTime departure) async* {
     if (t.kind == TransportKind.WALK) {
       // TODO: Make Schedule more adapted to walking
       yield Schedule(Transport(TransportKind.WALK, ""), from, d, departure);
@@ -208,7 +208,7 @@ class RTT {
 
     final schedules = await api.getSchedule(t, from, d);
     for (var s in schedules) {
-      // TODO: Ignore if schedule.mission doesn't go to Station to
+      if (t.kind == TransportKind.RER && !await api.doesMissionStopAt(s, to)) continue;
       if (s.time.isAfter(departure)) {
         yield s;
       }
