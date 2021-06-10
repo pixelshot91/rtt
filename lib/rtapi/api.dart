@@ -38,5 +38,11 @@ abstract class RTAPI {
     return schedules;
   }
 
+  Future<bool> doesMissionStopAt(Schedule s, Station to) async {
+    return (await getStationsServedByMission(s)).contains(to);
+  }
+
+  Future<List<Station>> getStationsServedByMission(Schedule s);
+
   Future<List<Schedule>> getScheduleNoCache(Transport transport, Station station, Direction direction);
 }

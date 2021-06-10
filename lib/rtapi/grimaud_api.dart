@@ -65,6 +65,26 @@ class GrimaudAPI extends RTAPI {
         super(maxCacheLife: maxCacheLife);
   GrimaudAPI.withClient(this.client, {Duration? maxCacheLife}) : super(maxCacheLife: maxCacheLife);
 
+  @override
+  Future<List<Station>> getStationsServedByMission(Schedule s) async {
+    final http.Response resp = await callApi(['missions', s.transport.URL, s.mission]);
+    if (resp.statusCode != 200) throw ("Http error: Received status code ${resp.statusCode}");
+
+    return parseStationsFromBody(resp.body);
+  }
+
+  @visibleForTesting
+  List<Station> parseStationsFromBody(String body) {
+    final b = jsonDecode(body);
+    final rawStations = b['result']['stations'];
+
+    List<Station> stations = [];
+    for (final rawStation in rawStations) {
+      stations.add(Station(rawStation['name']));
+    }
+    return stations;
+  }
+
   @visibleForTesting
   @override
   Future<List<Schedule>> getScheduleNoCache(Transport transport, Station station, Direction direction) async {
