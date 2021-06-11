@@ -1,3 +1,4 @@
+import 'package:localstorage/localstorage.dart';
 import 'package:quiver/core.dart';
 import 'package:rtt/rtt.dart';
 
@@ -26,6 +27,8 @@ abstract class RTAPI {
 
   RTAPI({Duration? maxCacheLife}) : this.maxCacheLife = maxCacheLife ?? Duration(minutes: 1);
 
+  final LocalStorage storage = LocalStorage('api.json');
+
   Future<List<Schedule>> getSchedule(Transport transport, Station station, Direction direction) async {
     var findScheduleParams = FindScheduleParam(transport, station, direction);
     final cachedSchedules = scheduleCache[findScheduleParams];
@@ -42,7 +45,17 @@ abstract class RTAPI {
     return (await getStationsServedByMission(s)).contains(to);
   }
 
-  Future<List<Station>> getStationsServedByMission(Schedule s);
+  Future<List<Station>> getStationsServedByMission(Schedule s) async {
+    var storedValue = storage.getItem(s.mission!);
+    if (storedValue == null) {
+      final stations = await getStationsServedByMissionNoCache(s);
+      storage.setItem(s.mission!, stations);
+      return stations;
+    }
+    return List<Station>.from((storedValue as List).map((json) => (Station.fromJson(json))));
+  }
+
+  Future<List<Station>> getStationsServedByMissionNoCache(Schedule s);
 
   Future<List<Schedule>> getScheduleNoCache(Transport transport, Station station, Direction direction);
 }

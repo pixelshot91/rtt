@@ -16,20 +16,20 @@ void main() {
   });
   test('Find trips', () async {
     final now = DateTime(2000, 1, 1);
-    final nextSchedules = [Duration(minutes: 4), Duration(minutes: 10)];
+    final nextRemainingDurations = [Duration(minutes: 4), Duration(minutes: 10)];
 
     final leg = LegRequest(
         Transport(TransportKind.BUS, "172"), Station('Villejuif - Louis Aragon'), Station("Opera"), Direction.A,
         duration: Duration(minutes: 5));
 
-    when(api.getSchedule(leg.transport, leg.from, leg.direction)).thenAnswer(
-        (_) async => nextSchedules.map((d) => Schedule(leg.transport, leg.from, leg.direction, now.add(d))).toList());
+    final nextSchedules =
+        nextRemainingDurations.map((d) => Schedule(leg.transport, leg.from, leg.direction, now.add(d))).toList();
+    when(api.getSchedule(leg.transport, leg.from, leg.direction)).thenAnswer((_) async => nextSchedules);
     final trips = await rtt.suggestTrip(TripRequest(legs: [leg]), now).toList();
+
     expect(trips.length, 2);
-    final List<SuggestedTrip> expectedTrips = [
-      SuggestedTrip(legs: [SuggestedLeg(leg, startTime: now.add(nextSchedules[0]))]),
-      SuggestedTrip(legs: [SuggestedLeg(leg, startTime: now.add(nextSchedules[1]))]),
-    ];
+    final List<SuggestedTrip> expectedTrips =
+        nextSchedules.map((s) => SuggestedTrip(legs: [SuggestedLeg(leg, schedule: s)])).toList();
     expect(trips, expectedTrips);
   });
 }

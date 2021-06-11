@@ -66,7 +66,7 @@ class GrimaudAPI extends RTAPI {
   GrimaudAPI.withClient(this.client, {Duration? maxCacheLife}) : super(maxCacheLife: maxCacheLife);
 
   @override
-  Future<List<Station>> getStationsServedByMission(Schedule s) async {
+  Future<List<Station>> getStationsServedByMissionNoCache(Schedule s) async {
     final http.Response resp = await callApi(['missions', s.transport.URL, s.mission]);
     if (resp.statusCode != 200) throw ("Http error: Received status code ${resp.statusCode}");
 

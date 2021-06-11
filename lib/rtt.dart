@@ -135,6 +135,11 @@ class Station {
 
   bool operator ==(o) => o is Station && name == o.name;
   int get hashCode => name.hashCode;
+
+  Station.fromJson(Map<String, dynamic> json) : name = json['name'];
+  Map toJson() => {
+        'name': name,
+      };
 }
 
 enum Direction {

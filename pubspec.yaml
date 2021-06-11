@@ -33,6 +33,7 @@ dependencies:
   http: ^0.13.3
   quiver: ^3.0.1
   timer_builder: ^2.0.0
+  localstorage: ^4.0.0+1
 
 dev_dependencies:
   flutter_test:
