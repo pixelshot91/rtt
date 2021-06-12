@@ -41,6 +41,19 @@ abstract class RTAPI {
     return schedules;
   }
 
+  Future<List<Station>> getStationsOfLine(Transport transport, Direction direction) async {
+    final key = 'stations_' + transport.name;
+    final storedValue = storage.getItem(key);
+    if (storedValue == null) {
+      final stations = await getStationsOfLineNoCache(transport, direction);
+      storage.setItem(key, stations);
+      return stations;
+    }
+    return List<Station>.from((storedValue as List).map((json) => (Station.fromJson(json))));
+  }
+
+  Future<List<Station>> getStationsOfLineNoCache(Transport transport, Direction direction);
+
   Future<bool> doesMissionStopAt(Schedule s, Station to) async {
     return (await getStationsServedByMission(s)).contains(to);
   }

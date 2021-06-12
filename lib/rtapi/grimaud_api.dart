@@ -85,6 +85,19 @@ class GrimaudAPI extends RTAPI {
     return stations;
   }
 
+  @override
+  Future<List<Station>> getStationsOfLineNoCache(Transport transport, Direction direction) async {
+    final http.Response resp = await callApi(['stations', transport.URL]);
+    if (resp.statusCode != 200) throw ("Http error: Received status code ${resp.statusCode}");
+
+    final stations = parseStationsFromBody(resp.body);
+    bool shoudReverse = direction == Direction.B;
+    if (transport.kind == TransportKind.RER || transport.kind == TransportKind.TRAM) {
+      shoudReverse = !shoudReverse;
+    }
+    return shoudReverse ? stations.reversed.toList() : stations;
+  }
+
   @visibleForTesting
   @override
   Future<List<Schedule>> getScheduleNoCache(Transport transport, Station station, Direction direction) async {
