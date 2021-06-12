@@ -6,6 +6,9 @@ import 'package:rtt/rtapi/api.dart';
 import 'package:rtt/rtt.dart';
 import 'package:rtt/tools/datetime.dart';
 
+// This API use the RATP API and expose the data as REST resources.
+// Git repo: https://github.com/pgrimaud/ratp-api-rest/
+
 extension GrimaudTransportKind on TransportKind {
   String get URL {
     switch (this) {
@@ -37,22 +40,10 @@ extension GrimaudDirection on Direction {
 }
 
 extension GrimaudStation on Station {
-  static const nameToSlug = {
-    // M7
-    'Villejuif-Louis Aragon': 'villejuif+louis+aragon',
-    // B172
-    'Villejuif - Louis Aragon': 'villejuif+++louis+aragon',
-    'Bourg-La-Reine RER': 'bourg+la+reine+rer',
-    // B286
-    'Les Bons Enfants': 'les+bons+enfants',
-    'Antony RER': 'antony+rer',
-    // RERB
-    'Bourg-la-Reine': 'bourg+la+reine',
-    'Antony': 'antony',
-    'Massy-Verrieres': 'massy+verrieres',
-  };
+  // From src/Utils/NameHelper:slugify
+  String getSlug() => name.replaceAll(RegExp('[ -]'), '+').toLowerCase();
   String get URL {
-    final String? url = nameToSlug[this.name];
+    final String? url = getSlug();
     if (url is String) return url;
     throw Exception("Unknown station name = ${this.name}");
   }

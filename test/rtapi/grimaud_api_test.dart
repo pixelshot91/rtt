@@ -247,4 +247,25 @@ void main() {
     assert(zip([schedules, expectedSchedules]).every((pair) => almostEqualSchedule(pair[0], pair[1])));
     verifyZeroInteractions(client);
   });
+
+  test('slugify', () {
+    const nameToSlug = {
+      // M7
+      'Villejuif-Louis Aragon': 'villejuif+louis+aragon',
+      // B172
+      'Villejuif - Louis Aragon': 'villejuif+++louis+aragon',
+      'Bourg-La-Reine RER': 'bourg+la+reine+rer',
+      // B286
+      'Les Bons Enfants': 'les+bons+enfants',
+      'Antony RER': 'antony+rer',
+      // RERB
+      'Bourg-la-Reine': 'bourg+la+reine',
+      'Antony': 'antony',
+      'Massy-Verrieres': 'massy+verrieres',
+    };
+
+    nameToSlug.forEach((name, expectedSlug) {
+      expect(Station(name).getSlug(), expectedSlug);
+    });
+  });
 }
