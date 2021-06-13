@@ -20,11 +20,13 @@ extension myColor on Color {
 }
 
 class RATPColors {
-  static final Coquelicot = myColor.fromRGB(255, 20, 0);
+  static final Azur = myColor.fromRGB(0, 85, 200);
   static final Bleu_outremer = myColor.fromRGB(60, 145, 220);
-  static final Vert_fonce = myColor.fromRGB(0, 100, 60);
-  static final Rose = myColor.fromRGB(255, 130, 180);
+  static final Coquelicot = myColor.fromRGB(255, 20, 0);
   static final Lilas = myColor.fromRGB(210, 130, 190);
+  static final Marron = myColor.fromRGB(90, 35, 10);
+  static final Rose = myColor.fromRGB(255, 130, 180);
+  static final Vert_fonce = myColor.fromRGB(0, 100, 60);
 }
 
 class LineInfo {
@@ -39,8 +41,10 @@ final LineInfos = {
   Tuple2(TransportKind.RER, "A"): LineInfo(RATPColors.Coquelicot, "RER A"),
   Tuple2(TransportKind.RER, "B"): LineInfo(RATPColors.Bleu_outremer, "RER B"),
   Tuple2(TransportKind.METRO, "7"): LineInfo(RATPColors.Rose, "M7"),
+  Tuple2(TransportKind.TRAM, "7"): LineInfo(RATPColors.Marron, "T7"),
   Tuple2(TransportKind.BUS, "172"): LineInfo(RATPColors.Vert_fonce, "172"),
   Tuple2(TransportKind.BUS, "286"): LineInfo(RATPColors.Lilas, "286"),
+  Tuple2(TransportKind.BUS, "TVM"): LineInfo(RATPColors.Azur, "TVM"),
 };
 
 extension UI on Transport {
@@ -48,7 +52,16 @@ extension UI on Transport {
 
   Color get color => lineInfo?.color ?? Colors.grey;
 
-  SvgPicture get picto => lineInfo?.picto ?? SvgPicture.asset("");
+  Widget get picto {
+    switch (kind) {
+      case TransportKind.WALK:
+        return Icon(Icons.directions_walk);
+      default:
+        return lineInfo?.picto ?? Text('');
+    }
+    ;
+  }
+
 /*String get pictoPath => pictoIdToPath[id];
   String get id {
     switch (kind) {

@@ -16,6 +16,8 @@ extension GrimaudTransportKind on TransportKind {
         return "rers";
       case TransportKind.METRO:
         return "metros";
+      case TransportKind.TRAM:
+        return "tramways";
       case TransportKind.BUS:
         return "buses";
       default:
@@ -119,6 +121,7 @@ class GrimaudAPI extends RTAPI {
     switch (transport.kind) {
       case TransportKind.RER:
         return Schedule(transport, station, direction, time, rawSchedule['code']);
+      case TransportKind.TRAM:
       case TransportKind.METRO:
       case TransportKind.BUS:
         return Schedule(transport, station, direction, time);
