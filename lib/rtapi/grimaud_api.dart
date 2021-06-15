@@ -134,7 +134,8 @@ class GrimaudAPI extends RTAPI {
         msg.startsWith('Train Ã  quai') ||
         msg == "A l'arret" ||
         msg == "Train a quai" ||
-        msg.startsWith('Voie ')) return DateTime.now();
+        msg.startsWith('Voie ') ||
+        msg.startsWith('Stationne')) return DateTime.now();
 
     if (RegExp(r"l'approche").hasMatch(msg)) return DateTime.now().add(Duration(minutes: 1));
 
@@ -156,9 +157,17 @@ class GrimaudAPI extends RTAPI {
         RegExp(r'^Sans arr.*t').hasMatch(msg) ||
         msg.startsWith('Sans voyageurs') ||
         msg == 'PAS DE SERVICE' ||
-        msg == '..................') return null;
+        msg == '..................' ||
+        msg.startsWith('Train retard') ||
+        msg.startsWith('Supprim')) return null;
+
+    // TODO: Should be treated as an error ?
+    if (msg == "Schedules unavailable") {
+      return null;
+    }
 
     print("Can't parse $msg");
+    throw "Can't parse $msg";
   }
 
   @visibleForTesting
