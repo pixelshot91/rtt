@@ -121,7 +121,7 @@ final trip_172_rerb = TripRequest(legs: [
 final trip_286_rerb = TripRequest(legs: [
   LegRequest(Transport(TransportKind.BUS, "286"), Station('Les Bons Enfants'), Station('Antony RER'), Direction.A,
       duration: Duration(minutes: 30)),
-  LegRequest(Transport(TransportKind.RER, "B"), Station('Antony RER'), Station('Massy Verrieres'), Direction.B,
+  LegRequest(Transport(TransportKind.RER, "B"), Station('Antony'), Station('Massy Verrieres'), Direction.B,
       duration: Duration(minutes: 5)),
   walk(Duration(minutes: 10)),
 ]);
@@ -133,7 +133,7 @@ final trip_t7_tvm_rerb = TripRequest(legs: [
   LegRequest(
       Transport(TransportKind.BUS, 'TVM'), Station('Porte de Thiais'), Station('La Croix de Berny-RER'), Direction.B,
       duration: Duration(minutes: 22)),
-  LegRequest(Transport(TransportKind.RER, "B"), Station('Antony RER'), Station('Massy Verrieres'), Direction.B,
+  LegRequest(Transport(TransportKind.RER, "B"), Station('Antony'), Station('Massy Verrieres'), Direction.B,
       duration: Duration(minutes: 5)),
   walk(Duration(minutes: 10)),
 ]);
