@@ -75,6 +75,16 @@ extension UI on Transport {
   }*/
 }
 
+extension GantLeg on SuggestedLeg {
+  String getLabel() {
+    var label = transport.name;
+    if (transport.kind == TransportKind.RER) {
+      label += ' ' + (schedule as RERSchedule).mission;
+    }
+    return label;
+  }
+}
+
 const legBarHeight = 25.0;
 
 class GanttChartScreen extends StatefulWidget {
@@ -204,7 +214,7 @@ class GanttChart extends StatelessWidget {
             children: [
               legs[i].transport.picto,
               Text(
-                ' ' + legs[i].transport.name + ' ' + (legs[i].schedule.mission ?? ""),
+                ' ' + legs[i].getLabel(),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(fontSize: 10.0),

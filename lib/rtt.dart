@@ -166,12 +166,22 @@ class Schedule {
   Station station;
   Direction direction;
   DateTime time;
-  String? mission;
 
-  Schedule(this.transport, this.station, this.direction, this.time, [this.mission]);
+  Schedule(this.transport, this.station, this.direction, this.time);
 
   @override
   String toString() => 'Schedule(transport: $transport, station: $station, direction: $direction, time: $time)';
+}
+
+class RERSchedule extends Schedule {
+  String mission;
+
+  RERSchedule(transport, station, direction, time, this.mission)
+      : assert(transport.kind == TransportKind.RER),
+        super(transport, station, direction, time);
+
+  @override
+  String toString() => 'Schedule($transport from $station ($direction) at $time, mission = $mission)';
 }
 
 class RTT {
@@ -218,6 +228,18 @@ class RTT {
     }
   }
 
+  Future<bool> scheduleStopAt(Schedule s, Station to) async {
+    switch (s.transport.kind) {
+      case TransportKind.RER:
+        return await api.doesMissionStopAt(s as RERSchedule, to);
+      case TransportKind.BUS:
+      case TransportKind.METRO:
+      case TransportKind.TRAM:
+      case TransportKind.WALK:
+        return true;
+    }
+  }
+
   Stream<Schedule> findSchedules(Transport t, Station from, Station to, Direction d, DateTime departure) async* {
     if (t.kind == TransportKind.WALK) {
       // TODO: Make Schedule more adapted to walking
@@ -227,7 +249,7 @@ class RTT {
 
     final schedules = await api.getSchedule(t, from, d);
     for (var s in schedules) {
-      if (t.kind == TransportKind.RER && !await api.doesMissionStopAt(s, to)) continue;
+      if (!await scheduleStopAt(s, to)) continue;
       if (s.time.isAfter(departure)) {
         yield s;
       }

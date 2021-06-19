@@ -54,21 +54,21 @@ abstract class RTAPI {
 
   Future<List<Station>> getStationsOfLineNoCache(Transport transport, Direction direction);
 
-  Future<bool> doesMissionStopAt(Schedule s, Station to) async {
+  Future<bool> doesMissionStopAt(RERSchedule s, Station to) async {
     return (await getStationsServedByMission(s)).contains(to);
   }
 
-  Future<List<Station>> getStationsServedByMission(Schedule s) async {
-    var storedValue = storage.getItem(s.mission!);
+  Future<List<Station>> getStationsServedByMission(RERSchedule s) async {
+    var storedValue = storage.getItem(s.mission);
     if (storedValue == null) {
       final stations = await getStationsServedByMissionNoCache(s);
-      storage.setItem(s.mission!, stations);
+      storage.setItem(s.mission, stations);
       return stations;
     }
     return List<Station>.from((storedValue as List).map((json) => (Station.fromJson(json))));
   }
 
-  Future<List<Station>> getStationsServedByMissionNoCache(Schedule s);
+  Future<List<Station>> getStationsServedByMissionNoCache(RERSchedule s);
 
   Future<List<Schedule>> getScheduleNoCache(Transport transport, Station station, Direction direction);
 }
