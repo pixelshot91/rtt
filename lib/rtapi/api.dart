@@ -2,6 +2,10 @@ import 'package:localstorage/localstorage.dart';
 import 'package:quiver/core.dart';
 import 'package:rtt/rtt.dart';
 
+extension JSONList on List {
+  List<Map<String, dynamic>> toJson() => map<Map<String, dynamic>>((e) => e.toJson()).toList();
+}
+
 class FindScheduleParam {
   Transport transport;
   Station station;
@@ -46,7 +50,7 @@ abstract class RTAPI {
     final storedValue = storage.getItem(key);
     if (storedValue == null) {
       final stations = await getStationsOfLineNoCache(transport, direction);
-      storage.setItem(key, stations);
+      storage.setItem(key, stations.toJson());
       return stations;
     }
     return List<Station>.from((storedValue as List).map((json) => (Station.fromJson(json))));
@@ -62,7 +66,7 @@ abstract class RTAPI {
     var storedValue = storage.getItem(s.mission);
     if (storedValue == null) {
       final stations = await getStationsServedByMissionNoCache(s);
-      storage.setItem(s.mission, stations);
+      storage.setItem(s.mission, stations.toJson());
       return stations;
     }
     return List<Station>.from((storedValue as List).map((json) => (Station.fromJson(json))));

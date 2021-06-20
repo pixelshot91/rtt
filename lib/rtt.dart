@@ -157,7 +157,7 @@ class Station {
   int get hashCode => name.hashCode;
 
   Station.fromJson(Map<String, dynamic> json) : name = json['name'];
-  Map toJson() => {
+  Map<String, dynamic> toJson() => {
         'name': name,
       };
 }
