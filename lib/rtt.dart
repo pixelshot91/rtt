@@ -28,6 +28,9 @@ class Transport {
 
   Transport(this.kind, this.line);
 
+  @override
+  String toString() => name;
+
   bool operator ==(o) => o is Transport && kind == o.kind && line == o.line;
   int get hashCode => hash2(kind, line);
 }
@@ -147,6 +150,9 @@ class Station {
   String name;
   Station(this.name);
 
+  @override
+  String toString() => name;
+
   bool operator ==(o) => o is Station && name == o.name;
   int get hashCode => name.hashCode;
 
@@ -170,7 +176,7 @@ class Schedule {
   Schedule(this.transport, this.station, this.direction, this.time);
 
   @override
-  String toString() => 'Schedule(transport: $transport, station: $station, direction: $direction, time: $time)';
+  String toString() => 'Schedule($transport from $station ($direction) at $time)';
 }
 
 class RERSchedule extends Schedule {
@@ -182,6 +188,17 @@ class RERSchedule extends Schedule {
 
   @override
   String toString() => 'Schedule($transport from $station ($direction) at $time, mission = $mission)';
+}
+
+class BUSSchedule extends Schedule {
+  Station terminus;
+
+  BUSSchedule(transport, station, direction, time, this.terminus)
+      : assert(transport.kind == TransportKind.BUS),
+        super(transport, station, direction, time);
+
+  @override
+  String toString() => 'Schedule($transport from $station ($direction) at $time, terminus = $terminus)';
 }
 
 class RTT {
@@ -233,6 +250,8 @@ class RTT {
       case TransportKind.RER:
         return await api.doesMissionStopAt(s as RERSchedule, to);
       case TransportKind.BUS:
+        List<Station> stations = await api.getStationsOfLine(s.transport, s.direction);
+        return stations.indexOf(to) <= stations.indexOf((s as BUSSchedule).terminus);
       case TransportKind.METRO:
       case TransportKind.TRAM:
       case TransportKind.WALK:
@@ -249,7 +268,10 @@ class RTT {
 
     final schedules = await api.getSchedule(t, from, d);
     for (var s in schedules) {
-      if (!await scheduleStopAt(s, to)) continue;
+      if (!await scheduleStopAt(s, to)) {
+        print("Ignoring Schedule $s because it does not stop at $to");
+        continue;
+      }
       if (s.time.isAfter(departure)) {
         yield s;
       }
