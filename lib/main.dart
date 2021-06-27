@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rtt/rtapi/api_cache.dart';
 import 'package:rtt/rtapi/grimaud_api.dart';
 import 'package:rtt/rtt.dart';
+import 'package:rtt/tools/tools.dart';
 
 import 'gantt_chart_screen.dart';
 
@@ -64,6 +65,9 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ],
         ),
+        actions: [
+          IconButton(icon: Icon(Icons.download_rounded), onPressed: () => Tools.downloadFile('salut', 'file.txt')),
+        ],
       ),
       body: Center(
         child: GanttChartScreen(suggestedTrips, fromDate),
