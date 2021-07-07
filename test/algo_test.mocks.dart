@@ -7,7 +7,6 @@ import 'dart:async' as _i4;
 import 'package:localstorage/localstorage.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:rtt/rtapi/api.dart' as _i3;
-import 'package:rtt/rtt.dart' as _i5;
 
 // ignore_for_file: avoid_redundant_argument_values
 // ignore_for_file: comment_references
@@ -50,49 +49,49 @@ class MockRTAPI extends _i1.Mock implements _i3.RTAPI {
       (super.noSuchMethod(Invocation.getter(#storage),
           returnValue: _FakeLocalStorage()) as _i2.LocalStorage);
   @override
-  _i4.Future<List<_i5.Schedule>> getSchedule(_i5.Transport? transport,
-          _i5.Station? station, _i5.Direction? direction) =>
+  _i4.Future<List<_i3.Schedule>> getSchedule(_i3.Transport? transport,
+          _i3.Station? station, _i3.Direction? direction) =>
       (super.noSuchMethod(
               Invocation.method(#getSchedule, [transport, station, direction]),
-              returnValue: Future<List<_i5.Schedule>>.value(<_i5.Schedule>[]))
-          as _i4.Future<List<_i5.Schedule>>);
+              returnValue: Future<List<_i3.Schedule>>.value(<_i3.Schedule>[]))
+          as _i4.Future<List<_i3.Schedule>>);
   @override
-  _i4.Future<List<_i5.Station>> getStationsOfLine(
-          _i5.Transport? transport, _i5.Direction? direction) =>
+  _i4.Future<List<_i3.Station>> getStationsOfLine(
+          _i3.Transport? transport, _i3.Direction? direction) =>
       (super.noSuchMethod(
               Invocation.method(#getStationsOfLine, [transport, direction]),
-              returnValue: Future<List<_i5.Station>>.value(<_i5.Station>[]))
-          as _i4.Future<List<_i5.Station>>);
+              returnValue: Future<List<_i3.Station>>.value(<_i3.Station>[]))
+          as _i4.Future<List<_i3.Station>>);
   @override
-  _i4.Future<List<_i5.Station>> getStationsOfLineNoCache(
-          _i5.Transport? transport) =>
+  _i4.Future<List<_i3.Station>> getStationsOfLineNoCache(
+          _i3.Transport? transport) =>
       (super.noSuchMethod(
               Invocation.method(#getStationsOfLineNoCache, [transport]),
-              returnValue: Future<List<_i5.Station>>.value(<_i5.Station>[]))
-          as _i4.Future<List<_i5.Station>>);
+              returnValue: Future<List<_i3.Station>>.value(<_i3.Station>[]))
+          as _i4.Future<List<_i3.Station>>);
   @override
-  _i4.Future<bool> doesMissionStopAt(_i5.RERSchedule? s, _i5.Station? to) =>
+  _i4.Future<bool> doesMissionStopAt(_i3.RERSchedule? s, _i3.Station? to) =>
       (super.noSuchMethod(Invocation.method(#doesMissionStopAt, [s, to]),
           returnValue: Future<bool>.value(false)) as _i4.Future<bool>);
   @override
-  _i4.Future<List<_i5.Station>> getStationsServedByMission(
-          _i5.RERSchedule? s) =>
+  _i4.Future<List<_i3.Station>> getStationsServedByMission(
+          _i3.RERSchedule? s) =>
       (super.noSuchMethod(Invocation.method(#getStationsServedByMission, [s]),
-              returnValue: Future<List<_i5.Station>>.value(<_i5.Station>[]))
-          as _i4.Future<List<_i5.Station>>);
+              returnValue: Future<List<_i3.Station>>.value(<_i3.Station>[]))
+          as _i4.Future<List<_i3.Station>>);
   @override
-  _i4.Future<List<_i5.Station>> getStationsServedByMissionNoCache(
-          _i5.RERSchedule? s) =>
+  _i4.Future<List<_i3.Station>> getStationsServedByMissionNoCache(
+          _i3.RERSchedule? s) =>
       (super.noSuchMethod(
               Invocation.method(#getStationsServedByMissionNoCache, [s]),
-              returnValue: Future<List<_i5.Station>>.value(<_i5.Station>[]))
-          as _i4.Future<List<_i5.Station>>);
+              returnValue: Future<List<_i3.Station>>.value(<_i3.Station>[]))
+          as _i4.Future<List<_i3.Station>>);
   @override
-  _i4.Future<List<_i5.Schedule>> getScheduleNoCache(_i5.Transport? transport,
-          _i5.Station? station, _i5.Direction? direction) =>
+  _i4.Future<List<_i3.Schedule>> getScheduleNoCache(_i3.Transport? transport,
+          _i3.Station? station, _i3.Direction? direction) =>
       (super.noSuchMethod(
               Invocation.method(
                   #getScheduleNoCache, [transport, station, direction]),
-              returnValue: Future<List<_i5.Schedule>>.value(<_i5.Schedule>[]))
-          as _i4.Future<List<_i5.Schedule>>);
+              returnValue: Future<List<_i3.Schedule>>.value(<_i3.Schedule>[]))
+          as _i4.Future<List<_i3.Schedule>>);
 }

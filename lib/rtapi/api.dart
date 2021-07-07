@@ -1,28 +1,79 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:quiver/core.dart';
-import 'package:rtt/rtt.dart';
+
+part 'api.freezed.dart';
+part 'api.g.dart';
 
 extension JSONList on List {
   List<Map<String, dynamic>> toJson() => map<Map<String, dynamic>>((e) => e.toJson()).toList();
 }
 
-class FindScheduleParam {
-  Transport transport;
-  Station station;
-  Direction direction;
-
-  FindScheduleParam(this.transport, this.station, this.direction);
-
-  bool operator ==(o) =>
-      o is FindScheduleParam && transport == o.transport && station == o.station && direction == o.direction;
-  int get hashCode => hash3(transport, station, direction);
+enum TransportKind {
+  RER,
+  METRO,
+  TRAM,
+  BUS,
+  WALK,
 }
 
-class CachedSchedules {
-  DateTime lastUpdateAt;
-  List<Schedule> schedules;
+const transportKindNames = {
+  TransportKind.RER: "RER",
+  TransportKind.METRO: "Metro",
+  TransportKind.TRAM: "Tram",
+  TransportKind.BUS: "Bus",
+  TransportKind.WALK: "Walk",
+};
 
-  CachedSchedules(this.lastUpdateAt, this.schedules);
+@freezed
+class Transport with _$Transport {
+  Transport._();
+  factory Transport(TransportKind kind, String line) = _Transport;
+  factory Transport.fromJson(Map<String, dynamic> json) => _$TransportFromJson(json);
+  String get name => transportKindNames[kind]! + ' ' + line;
+  @override
+  String toString() => name;
+}
+
+@freezed
+class Station with _$Station {
+  Station._();
+  factory Station(String name) = _Station;
+  factory Station.fromJson(Map<String, dynamic> json) => _$StationFromJson(json);
+
+  @override
+  String toString() => name;
+}
+
+enum Direction {
+  A,
+  B,
+}
+
+@freezed
+class Schedule with _$Schedule {
+  Schedule._();
+  factory Schedule(Transport transport, Station station, Direction direction, DateTime time) = _Schedule;
+  factory Schedule.RER(Transport transport, Station station, Direction direction, DateTime time, String mission) =
+      RERSchedule;
+  factory Schedule.BUS(Transport transport, Station station, Direction direction, DateTime time, Station terminus) =
+      BUSSchedule;
+
+  factory Schedule.fromJson(Map<String, dynamic> json) => _$ScheduleFromJson(json);
+
+  @override
+  String toString() => 'Schedule($transport from $station ($direction) at $time)';
+}
+
+@freezed
+class FindScheduleParam with _$FindScheduleParam {
+  factory FindScheduleParam(Transport transport, Station station, Direction direction) = _FindScheduleParam;
+  factory FindScheduleParam.fromJson(Map<String, dynamic> json) => _$FindScheduleParamFromJson(json);
+}
+
+@freezed
+class CachedSchedules with _$CachedSchedules {
+  factory CachedSchedules(DateTime lastUpdateAt, List<Schedule> schedules) = _CachedSchedules;
+  factory CachedSchedules.fromJson(Map<String, dynamic> json) => _$CachedSchedulesFromJson(json);
 }
 
 abstract class RTAPI {

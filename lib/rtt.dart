@@ -1,39 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
-import 'package:quiver/core.dart';
 import 'package:rtt/rtapi/api.dart';
-
-enum TransportKind {
-  RER,
-  METRO,
-  TRAM,
-  BUS,
-  WALK,
-}
-
-var transportKindNames = {
-  TransportKind.RER: "RER",
-  TransportKind.METRO: "Metro",
-  TransportKind.TRAM: "Tram",
-  TransportKind.BUS: "Bus",
-  TransportKind.WALK: "Walk",
-};
-
-class Transport {
-  TransportKind kind;
-  String line;
-
-  String get name => transportKindNames[kind]! + ' ' + line;
-
-  Transport(this.kind, this.line);
-
-  @override
-  String toString() => name;
-
-  bool operator ==(o) => o is Transport && kind == o.kind && line == o.line;
-  int get hashCode => hash2(kind, line);
-}
 
 class TripRequest {
   List<LegRequest> legs;
@@ -145,61 +113,6 @@ final trip_t7_tvm_rerb = TripRequest(legs: [
 ]);*/
 
 final tripsRequest = [trip_172_rerb, trip_286_rerb, trip_t7_tvm_rerb];
-
-class Station {
-  String name;
-  Station(this.name);
-
-  @override
-  String toString() => name;
-
-  bool operator ==(o) => o is Station && name == o.name;
-  int get hashCode => name.hashCode;
-
-  Station.fromJson(Map<String, dynamic> json) : name = json['name'];
-  Map<String, dynamic> toJson() => {
-        'name': name,
-      };
-}
-
-enum Direction {
-  A,
-  B,
-}
-
-class Schedule {
-  Transport transport;
-  Station station;
-  Direction direction;
-  DateTime time;
-
-  Schedule(this.transport, this.station, this.direction, this.time);
-
-  @override
-  String toString() => 'Schedule($transport from $station ($direction) at $time)';
-}
-
-class RERSchedule extends Schedule {
-  String mission;
-
-  RERSchedule(transport, station, direction, time, this.mission)
-      : assert(transport.kind == TransportKind.RER),
-        super(transport, station, direction, time);
-
-  @override
-  String toString() => 'Schedule($transport from $station ($direction) at $time, mission = $mission)';
-}
-
-class BUSSchedule extends Schedule {
-  Station terminus;
-
-  BUSSchedule(transport, station, direction, time, this.terminus)
-      : assert(transport.kind == TransportKind.BUS),
-        super(transport, station, direction, time);
-
-  @override
-  String toString() => 'Schedule($transport from $station ($direction) at $time, terminus = $terminus)';
-}
 
 class RTT {
   final RTAPI api;
