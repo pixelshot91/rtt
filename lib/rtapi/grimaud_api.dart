@@ -161,7 +161,8 @@ class GrimaudAPI extends RTAPI {
         msg == '..................' ||
         msg.startsWith('Train retard') ||
         msg.startsWith('Supprim') ||
-        msg == "DERNIER PASSAGE") return null;
+        msg == "DERNIER PASSAGE" ||
+        RegExp(r'^D.*part Retard.*').hasMatch(msg)) return null;
 
     // TODO: Should be treated as an error ?
     if (msg == "Schedules unavailable") {

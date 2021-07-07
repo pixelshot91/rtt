@@ -105,6 +105,11 @@ void main() {
           "code": "ERTE",
           "message": "17:49",
           "destination": "Aeroport Charles de Gaulle 2 TGV"
+        },
+        {
+          "code": "ERTE",
+          "message": "DÃ©part RetardÃ© V.1",
+          "destination": "Aeroport Charles de Gaulle 2 TGV"
         }
       ]
     },
