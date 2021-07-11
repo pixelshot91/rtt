@@ -60,20 +60,7 @@ extension UI on Transport {
       default:
         return lineInfo?.picto ?? Text('');
     }
-    ;
   }
-
-/*String get pictoPath => pictoIdToPath[id];
-  String get id {
-    switch (kind) {
-      case TransportKind.RER:
-        return "RER " + name;
-      case TransportKind.METRO:
-        return "M" + name;
-      case TransportKind.BUS:
-        return name;
-    }
-  }*/
 }
 
 extension GantLeg on SuggestedLeg {
