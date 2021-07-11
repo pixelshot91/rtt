@@ -152,8 +152,7 @@ class GanttChart extends StatelessWidget {
   final DateTime toDate;
   final List<SuggestedTrip> trips;
 
-  double minuteWidth = 20;
-  Animation<double>? width;
+  final double minuteWidth = 20;
 
   GanttChart({this.animationController, required this.trips})
       : toDate = trips.fold(trips.first.legs.last.endTime,
