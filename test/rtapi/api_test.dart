@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rtt/rtapi/api.dart';
-import 'package:rtt/rtt.dart';
 
 final mockStations = ['A', 'B', 'C'].map((name) => Station(name)).toList();
 

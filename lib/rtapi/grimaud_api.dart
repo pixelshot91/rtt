@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:rtt/rtapi/api.dart';
-import 'package:rtt/rtt.dart';
 import 'package:rtt/tools/datetime.dart';
 
 // This API use the RATP API and expose the data as REST resources.
