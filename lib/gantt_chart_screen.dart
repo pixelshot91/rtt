@@ -78,6 +78,7 @@ extension GantLeg on SuggestedLeg {
 
 const legBarHeight = 25.0;
 
+// From https://github.com/beesightsoft/bss_flutter_open/blob/master/lib/calendar_demo/gantt_chart/gantt_chart_screen.dart
 class GanttChartScreen extends StatefulWidget {
   final Stream<SuggestedTrip> trips;
 
@@ -85,12 +86,11 @@ class GanttChartScreen extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return new GanttChartScreenState(trips);
+    return GanttChartScreenState(trips);
   }
 }
 
 class GanttChartScreenState extends State<GanttChartScreen> with TickerProviderStateMixin {
-  AnimationController? animationController;
   final Stream<SuggestedTrip> tripsStream;
   List<SuggestedTrip> trips = [];
   bool streamDone = false;
@@ -100,8 +100,6 @@ class GanttChartScreenState extends State<GanttChartScreen> with TickerProviderS
   @override
   void initState() {
     super.initState();
-    animationController = new AnimationController(duration: Duration(microseconds: 2000), vsync: this);
-    animationController!.forward();
 
     tripsStream.listen(
       (t) => setState(() => this.trips.add(t)),
@@ -119,9 +117,7 @@ class GanttChartScreenState extends State<GanttChartScreen> with TickerProviderS
 
   @override
   Widget build(BuildContext context) {
-    if (trips.isEmpty) {
-      return Text("No trip found");
-    }
+    if (trips.isEmpty) return Text("No trip found");
     return Scaffold(
       appBar: buildAppBar() as PreferredSizeWidget?,
       body: GestureDetector(
@@ -133,7 +129,6 @@ class GanttChartScreenState extends State<GanttChartScreen> with TickerProviderS
           children: <Widget>[
             Expanded(
               child: GanttChart(
-                animationController: animationController,
                 trips: trips,
               ),
             ),
@@ -147,14 +142,13 @@ class GanttChartScreenState extends State<GanttChartScreen> with TickerProviderS
 class GanttChart extends StatelessWidget {
   final legendBackgroundColor = Colors.grey.shade400;
 
-  final AnimationController? animationController;
   final DateTime fromDate = DateTime.now();
   final DateTime toDate;
   final List<SuggestedTrip> trips;
 
   final double minuteWidth = 20;
 
-  GanttChart({this.animationController, required this.trips})
+  GanttChart({required this.trips})
       : toDate = trips.fold(trips.first.legs.last.endTime,
             (oldMax, t) => t.legs.last.endTime.isAfter(oldMax) ? t.legs.last.endTime : oldMax);
 

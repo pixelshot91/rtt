@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:rtt/rtapi/api.dart';
 import 'package:rtt/tools/datetime.dart';
@@ -90,7 +90,6 @@ class GrimaudAPI extends RTAPI {
     return shouldReverse ? stations.reversed.toList() : stations;
   }
 
-  @visibleForTesting
   @override
   Future<List<Schedule>> getScheduleNoCache(Transport transport, Station station, Direction direction) async {
     final http.Response resp = await callApi(['schedules', transport.URL, station.URL, direction.URL]);
@@ -99,6 +98,7 @@ class GrimaudAPI extends RTAPI {
     return parseSchedulesFromBody(resp.body, transport, station, direction);
   }
 
+  @visibleForTesting
   List<Schedule> parseSchedulesFromBody(String body, Transport transport, Station station, Direction direction) {
     final b = jsonDecode(body);
     final rawSchedules = b['result']['schedules'];
