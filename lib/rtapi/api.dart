@@ -48,15 +48,18 @@ abstract class RTAPI {
   Future<List<Station>> getStationsOfLine(Transport transport, Direction direction) async {
     final key = 'stations_' + transport.name;
     final storedValue = storage.getItem(key);
+    List<Station> stations;
     if (storedValue == null) {
-      final stations = await getStationsOfLineNoCache(transport, direction);
+      stations = await getStationsOfLineNoCache(transport);
       storage.setItem(key, stations.toJson());
-      return stations;
+    } else {
+      stations = List<Station>.from((storedValue as List).map((json) => (Station.fromJson(json))));
     }
-    return List<Station>.from((storedValue as List).map((json) => (Station.fromJson(json))));
+
+    return direction == Direction.A ? stations : stations.reversed.toList();
   }
 
-  Future<List<Station>> getStationsOfLineNoCache(Transport transport, Direction direction);
+  Future<List<Station>> getStationsOfLineNoCache(Transport transport);
 
   Future<bool> doesMissionStopAt(RERSchedule s, Station to) async {
     return (await getStationsServedByMission(s)).contains(to);

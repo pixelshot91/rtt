@@ -65,12 +65,11 @@ class MockRTAPI extends _i1.Mock implements _i3.RTAPI {
           as _i4.Future<List<_i5.Station>>);
   @override
   _i4.Future<List<_i5.Station>> getStationsOfLineNoCache(
-          _i5.Transport? transport, _i5.Direction? direction) =>
+          _i5.Transport? transport) =>
       (super.noSuchMethod(
-          Invocation.method(#getStationsOfLineNoCache, [transport, direction]),
-          returnValue:
-              Future<List<_i5.Station>>.value(<_i5.Station>[])) as _i4
-          .Future<List<_i5.Station>>);
+              Invocation.method(#getStationsOfLineNoCache, [transport]),
+              returnValue: Future<List<_i5.Station>>.value(<_i5.Station>[]))
+          as _i4.Future<List<_i5.Station>>);
   @override
   _i4.Future<bool> doesMissionStopAt(_i5.RERSchedule? s, _i5.Station? to) =>
       (super.noSuchMethod(Invocation.method(#doesMissionStopAt, [s, to]),

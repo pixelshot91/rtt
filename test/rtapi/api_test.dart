@@ -12,7 +12,7 @@ class MockAPI extends RTAPI {
   }
 
   @override
-  Future<List<Station>> getStationsOfLineNoCache(Transport transport, Direction direction) async {
+  Future<List<Station>> getStationsOfLineNoCache(Transport transport) async {
     print("Real execute");
     return mockStations;
   }
