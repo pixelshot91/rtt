@@ -21,6 +21,12 @@ class MockAPI extends RTAPI {
     // TODO: implement getStationsServedByMissionNoCache
     throw UnimplementedError();
   }
+
+  @override
+  Future<DateTime> getCurrentTime() {
+    // TODO: implement getCurrentTime
+    throw UnimplementedError();
+  }
 }
 
 void main() {

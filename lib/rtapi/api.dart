@@ -129,4 +129,6 @@ abstract class RTAPI {
   Future<List<Station>> getStationsServedByMissionNoCache(RERSchedule s);
 
   Future<List<Schedule>> getScheduleNoCache(Transport transport, Station station, Direction direction);
+
+  Future<DateTime> getCurrentTime();
 }

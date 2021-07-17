@@ -272,4 +272,8 @@ void main() {
       expect(Station(name).getSlug(), expectedSlug);
     });
   });
+
+  test('Parse time from response', () {
+    expect(api.parseTimeFromBody(busScheduleBody), DateTime(2021, 6, 5, 17, 20, 45));
+  });
 }

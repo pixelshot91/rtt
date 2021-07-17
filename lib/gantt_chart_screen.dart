@@ -81,8 +81,9 @@ const legBarHeight = 25.0;
 // From https://github.com/beesightsoft/bss_flutter_open/blob/master/lib/calendar_demo/gantt_chart/gantt_chart_screen.dart
 class GanttChartScreen extends StatefulWidget {
   final Stream<SuggestedTrip> trips;
+  final Future<DateTime> fromDate;
 
-  GanttChartScreen(this.trips);
+  GanttChartScreen(this.trips, this.fromDate);
 
   @override
   State<StatefulWidget> createState() {
@@ -93,6 +94,8 @@ class GanttChartScreen extends StatefulWidget {
 class GanttChartScreenState extends State<GanttChartScreen> with TickerProviderStateMixin {
   final Stream<SuggestedTrip> tripsStream;
   List<SuggestedTrip> trips = [];
+
+  DateTime? fromDate;
   bool streamDone = false;
 
   GanttChartScreenState(this.tripsStream);
@@ -105,6 +108,7 @@ class GanttChartScreenState extends State<GanttChartScreen> with TickerProviderS
       (t) => setState(() => this.trips.add(t)),
       onDone: () => setState(() => this.streamDone = true),
     );
+    widget.fromDate.then((d) => setState(() => fromDate = d));
   }
 
   Widget buildAppBar() {
@@ -117,6 +121,7 @@ class GanttChartScreenState extends State<GanttChartScreen> with TickerProviderS
 
   @override
   Widget build(BuildContext context) {
+    if (fromDate == null) return CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Colors.white));
     if (trips.isEmpty) return Text("No trip found");
     return Scaffold(
       appBar: buildAppBar() as PreferredSizeWidget?,
@@ -130,6 +135,7 @@ class GanttChartScreenState extends State<GanttChartScreen> with TickerProviderS
             Expanded(
               child: GanttChart(
                 trips: trips,
+                fromDate: fromDate!,
               ),
             ),
           ],
@@ -142,13 +148,13 @@ class GanttChartScreenState extends State<GanttChartScreen> with TickerProviderS
 class GanttChart extends StatelessWidget {
   final legendBackgroundColor = Colors.grey.shade400;
 
-  final DateTime fromDate = DateTime.now();
+  final DateTime fromDate;
   final DateTime toDate;
   final List<SuggestedTrip> trips;
 
   final double minuteWidth = 20;
 
-  GanttChart({required this.trips})
+  GanttChart({required this.trips, required this.fromDate})
       : toDate = trips.fold(trips.first.legs.last.endTime,
             (oldMax, t) => t.legs.last.endTime.isAfter(oldMax) ? t.legs.last.endTime : oldMax);
 

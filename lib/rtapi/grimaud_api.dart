@@ -98,6 +98,20 @@ class GrimaudAPI extends RTAPI {
     return parseSchedulesFromBody(resp.body, transport, station, direction);
   }
 
+  Future<DateTime> getCurrentTime() async {
+    final http.Response resp = await callApi(['destinations', 'rers', 'b']);
+    if (resp.statusCode != 200) throw ("Http error: Received status code ${resp.statusCode}");
+
+    return parseTimeFromBody(resp.body);
+  }
+
+  @visibleForTesting
+  DateTime parseTimeFromBody(String body) {
+    final b = jsonDecode(body);
+    final rawDatetime = b['_metadata']['date'];
+    return DateTime.parse(rawDatetime).toLocal();
+  }
+
   @visibleForTesting
   List<Schedule> parseSchedulesFromBody(String body, Transport transport, Station station, Direction direction) {
     final b = jsonDecode(body);

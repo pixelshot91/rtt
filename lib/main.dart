@@ -36,11 +36,17 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late Stream<SuggestedTrip> suggestedTrips;
+  // The time at which the suggested trip are made.
+  // now() for a real api
+  // a time in the past when replaying old data
+  late Future<DateTime> fromDate;
 
   @override
   void initState() {
     super.initState();
-    final rtt = RTT(GrimaudAPI());
+    final api = GrimaudAPI();
+    final rtt = RTT(api);
+    fromDate = api.getCurrentTime();
     suggestedTrips = rtt.suggestTrips(tripsRequest, DateTime.now());
   }
 
@@ -59,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       body: Center(
-        child: GanttChartScreen(suggestedTrips),
+        child: GanttChartScreen(suggestedTrips, fromDate),
       ),
     );
   }
