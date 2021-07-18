@@ -52,8 +52,8 @@ extension GrimaudStation on Station {
 
 class GrimaudAPI extends RTAPI {
   final http.Client client;
-  GrimaudAPI({Duration? maxCacheLife}) : client = http.Client();
-  GrimaudAPI.withClient(this.client, {Duration? maxCacheLife});
+  GrimaudAPI() : client = http.Client();
+  GrimaudAPI.withClient(this.client);
 
   @override
   Future<List<Station>> getStationsServedByMission(RERSchedule s) async {
