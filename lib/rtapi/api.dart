@@ -67,6 +67,18 @@ class Schedule with _$Schedule {
       );
 }
 
+@freezed
+class FindScheduleParam with _$FindScheduleParam {
+  factory FindScheduleParam(Transport transport, Station station, Direction direction) = _FindScheduleParam;
+  factory FindScheduleParam.fromJson(Map<String, dynamic> json) => _$FindScheduleParamFromJson(json);
+}
+
+@freezed
+class CachedSchedules with _$CachedSchedules {
+  factory CachedSchedules(DateTime lastUpdateAt, List<Schedule> schedules) = _CachedSchedules;
+  factory CachedSchedules.fromJson(Map<String, dynamic> json) => _$CachedSchedulesFromJson(json);
+}
+
 abstract class RTAPI {
   Future<List<Schedule>> getSchedule(Transport transport, Station station, Direction direction);
 

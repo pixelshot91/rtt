@@ -1,22 +1,6 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:localstorage/localstorage.dart';
 
 import 'api.dart';
-
-part 'api_cache.freezed.dart';
-part 'api_cache.g.dart';
-
-@freezed
-class FindScheduleParam with _$FindScheduleParam {
-  factory FindScheduleParam(Transport transport, Station station, Direction direction) = _FindScheduleParam;
-  factory FindScheduleParam.fromJson(Map<String, dynamic> json) => _$FindScheduleParamFromJson(json);
-}
-
-@freezed
-class CachedSchedules with _$CachedSchedules {
-  factory CachedSchedules(DateTime lastUpdateAt, List<Schedule> schedules) = _CachedSchedules;
-  factory CachedSchedules.fromJson(Map<String, dynamic> json) => _$CachedSchedulesFromJson(json);
-}
 
 class APICache extends RTAPI {
   Duration maxCacheLife;

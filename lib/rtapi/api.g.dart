@@ -123,3 +123,34 @@ Map<String, dynamic> _$_$BUSScheduleToJson(_$BUSSchedule instance) =>
       'time': instance.time.toIso8601String(),
       'terminus': instance.terminus,
     };
+
+_$_FindScheduleParam _$_$_FindScheduleParamFromJson(Map<String, dynamic> json) {
+  return _$_FindScheduleParam(
+    Transport.fromJson(json['transport'] as Map<String, dynamic>),
+    Station.fromJson(json['station'] as Map<String, dynamic>),
+    _$enumDecode(_$DirectionEnumMap, json['direction']),
+  );
+}
+
+Map<String, dynamic> _$_$_FindScheduleParamToJson(
+        _$_FindScheduleParam instance) =>
+    <String, dynamic>{
+      'transport': instance.transport,
+      'station': instance.station,
+      'direction': _$DirectionEnumMap[instance.direction],
+    };
+
+_$_CachedSchedules _$_$_CachedSchedulesFromJson(Map<String, dynamic> json) {
+  return _$_CachedSchedules(
+    DateTime.parse(json['lastUpdateAt'] as String),
+    (json['schedules'] as List<dynamic>)
+        .map((e) => Schedule.fromJson(e as Map<String, dynamic>))
+        .toList(),
+  );
+}
+
+Map<String, dynamic> _$_$_CachedSchedulesToJson(_$_CachedSchedules instance) =>
+    <String, dynamic>{
+      'lastUpdateAt': instance.lastUpdateAt.toIso8601String(),
+      'schedules': instance.schedules,
+    };
