@@ -120,7 +120,8 @@ class RTT {
 
   RTT(this.api, {this.margin = const Duration(minutes: 31)});
 
-  Stream<SuggestedTrip> suggestTrips(List<TripRequest> requests, DateTime departure) async* {
+  Stream<SuggestedTrip> suggestTrips(List<TripRequest> requests, Future<DateTime> departureFuture) async* {
+    final departure = await departureFuture;
     for (final request in requests) {
       await for (final suggestedTrip in suggestTrip(request, departure)) {
         yield suggestedTrip;

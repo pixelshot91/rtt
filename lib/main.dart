@@ -47,7 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final api = GrimaudAPI();
     final rtt = RTT(api);
     fromDate = api.getCurrentTime();
-    suggestedTrips = rtt.suggestTrips(tripsRequest, DateTime.now());
+    suggestedTrips = rtt.suggestTrips(tripsRequest, fromDate);
   }
 
   @override
