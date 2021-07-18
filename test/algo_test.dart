@@ -28,7 +28,7 @@ void main() {
       BUSSchedule(leg.transport, leg.from, leg.direction, now.add(Duration(minutes: 10)), Station('C')),
     ];
     when(api.getSchedule(leg.transport, leg.from, leg.direction)).thenAnswer((_) async => nextSchedules);
-    when(api.getStationsOfLine(leg.transport, leg.direction)).thenAnswer((_) async => b172_stations);
+    when(api.getStationsOfLine(leg.transport)).thenAnswer((_) async => b172_stations);
     final trips = await rtt.suggestTrip(TripRequest(legs: [leg]), now).toList();
 
     expect(trips.length, 2);
@@ -48,7 +48,7 @@ void main() {
       BUSSchedule(leg.transport, leg.from, leg.direction, now.add(Duration(minutes: 10)), Station('C')),
     ];
     when(api.getSchedule(leg.transport, leg.from, leg.direction)).thenAnswer((_) async => nextSchedules);
-    when(api.getStationsOfLine(leg.transport, leg.direction)).thenAnswer((_) async => b172_stations);
+    when(api.getStationsOfLine(leg.transport)).thenAnswer((_) async => b172_stations);
     final trips = await rtt.suggestTrip(TripRequest(legs: [leg]), now).toList();
 
     expect(trips.length, 1);

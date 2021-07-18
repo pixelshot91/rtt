@@ -178,14 +178,6 @@ void main() {
     expect(counter, 2);
   });
 
-  test('Map test FindScheduleParam', () {
-    final p1 = FindScheduleParam(Transport(TransportKind.RER, 'B'), Station('s'), Direction.A);
-    final p2 = FindScheduleParam(Transport(TransportKind.RER, 'B'), Station('s'), Direction.A);
-
-    Map<FindScheduleParam, String> m = {p1: 'Hello'};
-    expect(m[p2], 'Hello');
-  });
-
   test('Map test Transport', () {
     final p1 = Transport(TransportKind.RER, 'B');
     final p2 = Transport(TransportKind.RER, 'B');

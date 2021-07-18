@@ -5,20 +5,20 @@ final mockStations = ['A', 'B', 'C'].map((name) => Station(name)).toList();
 
 class MockAPI extends RTAPI {
   @override
-  Future<List<Schedule>> getScheduleNoCache(Transport transport, Station station, Direction direction) {
-    // TODO: implement getScheduleNoCache
+  Future<List<Schedule>> getSchedule(Transport transport, Station station, Direction direction) {
+    // TODO: implement getSchedule
     throw UnimplementedError();
   }
 
   @override
-  Future<List<Station>> getStationsOfLineNoCache(Transport transport) async {
+  Future<List<Station>> getStationsOfLine(Transport transport) async {
     print("Real execute");
     return mockStations;
   }
 
   @override
-  Future<List<Station>> getStationsServedByMissionNoCache(RERSchedule s) {
-    // TODO: implement getStationsServedByMissionNoCache
+  Future<List<Station>> getStationsServedByMission(RERSchedule s) {
+    // TODO: implement getStationsServedByMission
     throw UnimplementedError();
   }
 
@@ -32,14 +32,13 @@ class MockAPI extends RTAPI {
 void main() {
   test('Read write from LocalStorage', () async {
     final transport = Transport(TransportKind.BUS, '172');
-    final dir = Direction.A;
     final api = MockAPI();
     {
-      final stations = await api.getStationsOfLine(transport, dir);
+      final stations = await api.getStationsOfLine(transport);
       expect(stations, mockStations);
     }
     {
-      final stations = await api.getStationsOfLine(transport, dir);
+      final stations = await api.getStationsOfLine(transport);
       expect(stations, mockStations);
     }
   });
