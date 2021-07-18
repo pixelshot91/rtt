@@ -1,0 +1,7 @@
+# Strangely, an empty file also remove generated files from analysis
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+  errors:
+    invalid_annotation_target: ignore
