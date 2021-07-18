@@ -60,7 +60,11 @@ class Schedule with _$Schedule {
   factory Schedule.fromJson(Map<String, dynamic> json) => _$ScheduleFromJson(json);
 
   @override
-  String toString() => 'Schedule($transport from $station ($direction) at $time)';
+  String toString() => map(
+        (_) => 'Schedule($transport from $station ($direction) at $time)',
+        RER: (s) => 'Schedule($transport from $station ($direction, mission: ${s.mission}) at $time)',
+        BUS: (s) => 'Schedule($transport from $station ($direction, terminus: ${s.terminus}) at $time)',
+      );
 }
 
 abstract class RTAPI {
