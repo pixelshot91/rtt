@@ -52,13 +52,11 @@ extension GrimaudStation on Station {
 
 class GrimaudAPI extends RTAPI {
   final http.Client client;
-  GrimaudAPI({Duration? maxCacheLife})
-      : client = http.Client(),
-        super(maxCacheLife: maxCacheLife);
-  GrimaudAPI.withClient(this.client, {Duration? maxCacheLife}) : super(maxCacheLife: maxCacheLife);
+  GrimaudAPI({Duration? maxCacheLife}) : client = http.Client();
+  GrimaudAPI.withClient(this.client, {Duration? maxCacheLife});
 
   @override
-  Future<List<Station>> getStationsServedByMissionNoCache(RERSchedule s) async {
+  Future<List<Station>> getStationsServedByMission(RERSchedule s) async {
     final http.Response resp = await callApi(['missions', s.transport.URL, s.mission]);
     if (resp.statusCode != 200) throw ("Http error: Received status code ${resp.statusCode}");
 
@@ -78,7 +76,7 @@ class GrimaudAPI extends RTAPI {
   }
 
   @override
-  Future<List<Station>> getStationsOfLineNoCache(Transport transport) async {
+  Future<List<Station>> getStationsOfLine(Transport transport) async {
     final http.Response resp = await callApi(['stations', transport.URL]);
     if (resp.statusCode != 200) throw ("Http error: Received status code ${resp.statusCode}");
 
@@ -91,7 +89,7 @@ class GrimaudAPI extends RTAPI {
   }
 
   @override
-  Future<List<Schedule>> getScheduleNoCache(Transport transport, Station station, Direction direction) async {
+  Future<List<Schedule>> getSchedule(Transport transport, Station station, Direction direction) async {
     final http.Response resp = await callApi(['schedules', transport.URL, station.URL, direction.URL]);
     if (resp.statusCode != 200) throw ("Http error: Received status code ${resp.statusCode}");
 

@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:localstorage/localstorage.dart';
 
 part 'api.freezed.dart';
 part 'api.g.dart';
@@ -64,71 +63,16 @@ class Schedule with _$Schedule {
   String toString() => 'Schedule($transport from $station ($direction) at $time)';
 }
 
-@freezed
-class FindScheduleParam with _$FindScheduleParam {
-  factory FindScheduleParam(Transport transport, Station station, Direction direction) = _FindScheduleParam;
-  factory FindScheduleParam.fromJson(Map<String, dynamic> json) => _$FindScheduleParamFromJson(json);
-}
-
-@freezed
-class CachedSchedules with _$CachedSchedules {
-  factory CachedSchedules(DateTime lastUpdateAt, List<Schedule> schedules) = _CachedSchedules;
-  factory CachedSchedules.fromJson(Map<String, dynamic> json) => _$CachedSchedulesFromJson(json);
-}
-
 abstract class RTAPI {
-  Duration maxCacheLife;
-  Map<FindScheduleParam, CachedSchedules> scheduleCache = {};
+  Future<List<Schedule>> getSchedule(Transport transport, Station station, Direction direction);
 
-  RTAPI({Duration? maxCacheLife}) : this.maxCacheLife = maxCacheLife ?? Duration(minutes: 1);
+  Future<List<Station>> getStationsOfLine(Transport transport);
 
-  final LocalStorage storage = LocalStorage('api.json');
+  Future<List<Station>> getStationsServedByMission(RERSchedule s);
 
-  Future<List<Schedule>> getSchedule(Transport transport, Station station, Direction direction) async {
-    var findScheduleParams = FindScheduleParam(transport, station, direction);
-    final cachedSchedules = scheduleCache[findScheduleParams];
-
-    if (cachedSchedules != null && DateTime.now().difference(cachedSchedules.lastUpdateAt) < maxCacheLife) {
-      return Future(() => cachedSchedules.schedules);
-    }
-    final schedules = await getScheduleNoCache(transport, station, direction);
-    scheduleCache[findScheduleParams] = CachedSchedules(DateTime.now(), schedules);
-    return schedules;
-  }
-
-  Future<List<Station>> getStationsOfLine(Transport transport, Direction direction) async {
-    final key = 'stations_' + transport.name;
-    final storedValue = storage.getItem(key);
-    List<Station> stations;
-    if (storedValue == null) {
-      stations = await getStationsOfLineNoCache(transport);
-      storage.setItem(key, stations.toJson());
-    } else {
-      stations = List<Station>.from((storedValue as List).map((json) => (Station.fromJson(json))));
-    }
-
-    return direction == Direction.A ? stations : stations.reversed.toList();
-  }
-
-  Future<List<Station>> getStationsOfLineNoCache(Transport transport);
+  Future<DateTime> getCurrentTime();
 
   Future<bool> doesMissionStopAt(RERSchedule s, Station to) async {
     return (await getStationsServedByMission(s)).contains(to);
   }
-
-  Future<List<Station>> getStationsServedByMission(RERSchedule s) async {
-    var storedValue = storage.getItem(s.mission);
-    if (storedValue == null) {
-      final stations = await getStationsServedByMissionNoCache(s);
-      storage.setItem(s.mission, stations.toJson());
-      return stations;
-    }
-    return List<Station>.from((storedValue as List).map((json) => (Station.fromJson(json))));
-  }
-
-  Future<List<Station>> getStationsServedByMissionNoCache(RERSchedule s);
-
-  Future<List<Schedule>> getScheduleNoCache(Transport transport, Station station, Direction direction);
-
-  Future<DateTime> getCurrentTime();
 }

@@ -165,7 +165,8 @@ class RTT {
         return await api.doesMissionStopAt(s as RERSchedule, to);
       case TransportKind.BUS:
       /* TODO: Need an ordered list of station. Grimaud list is not in order
-        List<Station> stations = await api.getStationsOfLine(s.transport, s.direction);
+        List<Station> stations = await api.getStationsOfLine(s.transport);
+        if (s.direction == Direction.B) stations = stations.reversed.toList();
         return stations.indexOf(to) <= stations.indexOf((s as BUSSchedule).terminus);*/
       case TransportKind.METRO:
       case TransportKind.TRAM:

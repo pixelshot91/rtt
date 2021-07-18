@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rtt/rtapi/api_cache.dart';
 import 'package:rtt/rtapi/grimaud_api.dart';
 import 'package:rtt/rtt.dart';
 
@@ -44,7 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    final api = GrimaudAPI();
+    final api = APICache(GrimaudAPI());
     final rtt = RTT(api);
     fromDate = api.getCurrentTime();
     suggestedTrips = rtt.suggestTrips(tripsRequest, fromDate);
