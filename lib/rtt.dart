@@ -182,15 +182,20 @@ class RTT {
       return;
     }
 
-    final schedules = await api.getSchedule(t, from, d);
-    for (var s in schedules) {
-      if (!await scheduleStopAt(s, to)) {
-        print("Ignoring Schedule $s because it does not stop at $to");
-        continue;
+    try {
+      final schedules = await api.getSchedule(t, from, d);
+      print("Got Scheuldes");
+      for (var s in schedules) {
+        if (!await scheduleStopAt(s, to)) {
+          print("Ignoring Schedule $s because it does not stop at $to");
+          continue;
+        }
+        if (s.time.isAfter(departure)) {
+          yield s;
+        }
       }
-      if (s.time.isAfter(departure)) {
-        yield s;
-      }
+    } on Exception catch (e) {
+      print('Exception $e');
     }
   }
 }

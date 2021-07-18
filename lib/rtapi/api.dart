@@ -83,6 +83,20 @@ class CachedSchedules with _$CachedSchedules {
   factory CachedSchedules.fromJson(Map<String, dynamic> json) => _$CachedSchedulesFromJson(json);
 }
 
+class Cache {
+  Map<FindScheduleParam, CachedSchedules> schedules;
+  Cache({required this.schedules});
+
+  @override
+  List<dynamic> toJson() => schedules.entries.map((entry) => entry.key.toJson()..addAll(entry.value.toJson())).toList();
+
+  factory Cache.fromJson(List<dynamic> json) {
+    final schedules =
+        Map.fromEntries(json.map((e) => MapEntry(FindScheduleParam.fromJson(e), CachedSchedules.fromJson(e))));
+    return Cache(schedules: schedules);
+  }
+}
+
 abstract class RTAPI {
   Future<List<Schedule>> getSchedule(Transport transport, Station station, Direction direction);
 

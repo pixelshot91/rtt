@@ -6,7 +6,7 @@ import 'api.dart';
 
 class APICache extends RTAPI {
   Duration maxCacheLife;
-  Map<FindScheduleParam, CachedSchedules> scheduleCache = {};
+  var cache = Cache(schedules: {});
   RTAPI realAPI;
 
   APICache(this.realAPI, {Duration? maxCacheLife}) : this.maxCacheLife = maxCacheLife ?? Duration(minutes: 1);
@@ -15,14 +15,25 @@ class APICache extends RTAPI {
 
   Future<List<Schedule>> getSchedule(Transport transport, Station station, Direction direction) async {
     var findScheduleParams = FindScheduleParam(transport, station, direction);
-    final cachedSchedules = scheduleCache[findScheduleParams];
+    final cachedSchedules = cache.schedules[findScheduleParams];
 
     if (cachedSchedules != null && DateTime.now().difference(cachedSchedules.lastUpdateAt) < maxCacheLife) {
       return Future(() => cachedSchedules.schedules);
     }
-    final schedules = await realAPI.getSchedule(transport, station, direction);
-    scheduleCache[findScheduleParams] = CachedSchedules(DateTime.now(), schedules);
-    return schedules;
+
+    try {
+      final schedules = await realAPI.getSchedule(transport, station, direction);
+      print("Got realAPI schedule");
+      final cs = CachedSchedules(DateTime.now(), schedules);
+      print("got cs");
+      cache.schedules[findScheduleParams] = cs;
+      print("Store schedule in cache");
+      return schedules;
+    } catch (e) {
+      print("ERROR e = $e");
+      return [];
+    }
+    //return schedules;
   }
 
   Future<List<Station>> getStationsOfLine(Transport transport) async {
@@ -55,5 +66,5 @@ class APICache extends RTAPI {
 
   Future<DateTime> getCurrentTime() => realAPI.getCurrentTime();
 
-  String cacheToFile() => jsonEncode(scheduleCache);
+  String cacheToFile() => jsonEncode(cache.schedules);
 }
