@@ -43,10 +43,11 @@ class _MyHomePageState extends State<MyHomePage> {
   // a time in the past when replaying old data
   late Future<DateTime> fromDate;
 
+  final api = APICache(GrimaudAPI());
+
   @override
   void initState() {
     super.initState();
-    final api = APICache(GrimaudAPI());
     final rtt = RTT(api);
     fromDate = api.getCurrentTime();
     suggestedTrips = rtt.suggestTrips(tripsRequest, fromDate);
@@ -66,7 +67,8 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
         actions: [
-          IconButton(icon: Icon(Icons.download_rounded), onPressed: () => Tools.downloadFile('salut', 'file.txt')),
+          IconButton(
+              icon: Icon(Icons.download_rounded), onPressed: () => Tools.downloadFile(api.cacheToFile(), 'file.txt')),
         ],
       ),
       body: Center(

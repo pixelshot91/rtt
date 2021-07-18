@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:localstorage/localstorage.dart';
 
 import 'api.dart';
@@ -52,4 +54,6 @@ class APICache extends RTAPI {
   }
 
   Future<DateTime> getCurrentTime() => realAPI.getCurrentTime();
+
+  String cacheToFile() => jsonEncode(scheduleCache);
 }

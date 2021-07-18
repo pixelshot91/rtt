@@ -7,6 +7,10 @@ extension JSONList on List {
   List<Map<String, dynamic>> toJson() => map<Map<String, dynamic>>((e) => e.toJson()).toList();
 }
 
+extension JSONMap on Map {
+  Map<String, dynamic> toJson() => map((k, v) => MapEntry(k.toJson(), v.toJson()));
+}
+
 enum TransportKind {
   RER,
   METRO,
