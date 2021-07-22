@@ -28,6 +28,7 @@ class RATPColors {
   static final Marron = myColor.fromRGB(90, 35, 10);
   static final Rose = myColor.fromRGB(255, 130, 180);
   static final Vert_fonce = myColor.fromRGB(0, 100, 60);
+  static final Vert_clair = myColor.fromRGB(130, 220, 115);
 }
 
 class LineInfo {
@@ -44,6 +45,7 @@ final LineInfos = {
   Tuple2(TransportKind.METRO, "7"): LineInfo(RATPColors.Rose, "M7"),
   Tuple2(TransportKind.TRAM, "7"): LineInfo(RATPColors.Marron, "T7"),
   Tuple2(TransportKind.BUS, "172"): LineInfo(RATPColors.Vert_fonce, "172"),
+  Tuple2(TransportKind.BUS, "192"): LineInfo(RATPColors.Vert_clair, "192"),
   Tuple2(TransportKind.BUS, "286"): LineInfo(RATPColors.Lilas, "286"),
   Tuple2(TransportKind.BUS, "TVM"): LineInfo(RATPColors.Azur, "TVM"),
 };
