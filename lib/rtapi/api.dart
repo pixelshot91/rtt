@@ -85,7 +85,7 @@ class CachedSchedules with _$CachedSchedules {
 
 class Cache {
   Map<FindScheduleParam, CachedSchedules> schedules;
-  Cache({required this.schedules});
+  Cache({Map<FindScheduleParam, CachedSchedules>? schedules}) : schedules = schedules ?? {};
 
   @override
   List<dynamic> toJson() => schedules.entries.map((entry) => entry.key.toJson()..addAll(entry.value.toJson())).toList();

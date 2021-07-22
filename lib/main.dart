@@ -68,7 +68,8 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         actions: [
           IconButton(
-              icon: Icon(Icons.download_rounded), onPressed: () => Tools.downloadFile(api.cacheToFile(), 'file.txt')),
+              icon: Icon(Icons.download_rounded),
+              onPressed: () => Tools.downloadFile(api.cacheToFile(), 'rtt_${DateTime.now()}.txt')),
         ],
       ),
       body: Center(

@@ -6,7 +6,7 @@ import 'api.dart';
 
 class APICache extends RTAPI {
   Duration maxCacheLife;
-  var cache = Cache(schedules: {});
+  var cache = Cache();
   RTAPI realAPI;
 
   APICache(this.realAPI, {Duration? maxCacheLife}) : this.maxCacheLife = maxCacheLife ?? Duration(minutes: 1);
@@ -66,5 +66,5 @@ class APICache extends RTAPI {
 
   Future<DateTime> getCurrentTime() => realAPI.getCurrentTime();
 
-  String cacheToFile() => jsonEncode(cache.schedules);
+  String cacheToFile() => jsonEncode(cache);
 }
