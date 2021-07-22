@@ -8,6 +8,10 @@ void main() {
   runApp(MyApp());
 }
 
+class EnvironmentConfig {
+  static const VERSION = String.fromEnvironment('VERSION');
+}
+
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -44,7 +48,15 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Row(
+          children: [
+            Text(widget.title),
+            Text(
+              ' ' + EnvironmentConfig.VERSION,
+              style: TextStyle(fontSize: 15, color: Colors.white.withOpacity(0.5)),
+            ),
+          ],
+        ),
       ),
       body: Center(
         child: GanttChartScreen(suggestedTrips),
