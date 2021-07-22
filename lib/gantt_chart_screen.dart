@@ -81,6 +81,9 @@ extension GantLeg on SuggestedLeg {
     if (transport.kind == TransportKind.RER) {
       label += ' ' + (schedule as RERSchedule).mission;
     }
+    if (transport.kind == TransportKind.BUS) {
+      label += ' - ' + (schedule as BUSSchedule).terminus.name;
+    }
     return label;
   }
 }
