@@ -21,19 +21,9 @@ class APICache extends RTAPI {
       return Future(() => cachedSchedules.schedules);
     }
 
-    try {
-      final schedules = await realAPI.getSchedule(transport, station, direction);
-      print("Got realAPI schedule");
-      final cs = CachedSchedules(DateTime.now(), schedules);
-      print("got cs");
-      cache.schedules[findScheduleParams] = cs;
-      print("Store schedule in cache");
-      return schedules;
-    } catch (e) {
-      print("ERROR e = $e");
-      return [];
-    }
-    //return schedules;
+    final schedules = await realAPI.getSchedule(transport, station, direction);
+    cache.schedules[findScheduleParams] = CachedSchedules(DateTime.now(), schedules);
+    return schedules;
   }
 
   Future<List<Station>> getStationsOfLine(Transport transport) async {
