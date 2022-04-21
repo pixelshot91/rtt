@@ -7,6 +7,8 @@ import 'api.dart';
 class APIStub extends RTAPI {
   Cache cache;
 
+  final LocalStorage storage = LocalStorage('api.json');
+
   APIStub(this.cache);
 
   Future<List<Schedule>> getSchedule(Transport transport, Station station, Direction direction) async {
@@ -25,12 +27,10 @@ class APIStub extends RTAPI {
     final storedValue = storage.getItem(key);
     List<Station> stations;
     if (storedValue == null) {
-      stations = await realAPI.getStationsOfLine(transport);
-      storage.setItem(key, stations.toJson());
-    } else {
-      stations = List<Station>.from((storedValue as List).map((json) => (Station.fromJson(json))));
+      print('NOT in CACHE');
+      throw 'NOT in CACHE';
     }
-
+    stations = List<Station>.from((storedValue as List).map((json) => (Station.fromJson(json))));
     return stations;
   }
 
@@ -41,14 +41,13 @@ class APIStub extends RTAPI {
   Future<List<Station>> getStationsServedByMission(RERSchedule s) async {
     var storedValue = storage.getItem(s.mission);
     if (storedValue == null) {
-      final stations = await realAPI.getStationsServedByMission(s);
-      storage.setItem(s.mission, stations.toJson());
-      return stations;
+      print('NOT in CACHE getStationsServedByMission');
+      throw 'NOT in CACHE getStationsServedByMission';
     }
     return List<Station>.from((storedValue as List).map((json) => (Station.fromJson(json))));
   }
 
-  Future<DateTime> getCurrentTime() => realAPI.getCurrentTime();
+  Future<DateTime> getCurrentTime() async => cache.schedules.values.first.schedules.first.time;
 
   String cacheToFile() => jsonEncode(cache);
 }

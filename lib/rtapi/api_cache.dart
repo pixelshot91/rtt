@@ -9,9 +9,15 @@ class APICache extends RTAPI {
   var cache = Cache();
   RTAPI realAPI;
 
-  APICache(this.realAPI, {Duration? maxCacheLife}) : this.maxCacheLife = maxCacheLife ?? Duration(minutes: 1);
-
   final LocalStorage storage = LocalStorage('api.json');
+
+  APICache(this.realAPI, {Duration? maxCacheLife}) : this.maxCacheLife = maxCacheLife ?? Duration(minutes: 1) {
+    loadStaticDataFromLocalStorage();
+  }
+
+  void loadStaticDataFromLocalStorage() {
+    //storage.stream;
+  }
 
   Future<List<Schedule>> getSchedule(Transport transport, Station station, Direction direction) async {
     var findScheduleParams = FindScheduleParam(transport, station, direction);
